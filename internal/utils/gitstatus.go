@@ -1,35 +1,15 @@
-package main
+package utils
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"time"
+    "strings"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/object"
 )
-
-func main() {
-	path := "/home/dave/workspace/projects" // Specify the path to your repositories here
-
-	dailyCommits, err := GetDailyCommits(path)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	fmt.Println("Daily Commits:")
-	fmt.Println(dailyCommits)
-
-	// weeklyCommits, err := GetWeeklyCommits(path)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	// fmt.Println("Weekly Commits:")
-	// fmt.Println(weeklyCommits)
-}
 
 func GetDailyCommits(path string) (string, error) {
 	repositories, err := findGitRepositories(path)
@@ -120,7 +100,7 @@ func getCommitsFromTimeRange(repoPath string, since time.Time, until time.Time) 
 			timeSinceCommit := time.Since(commit.Committer.When)
 			formattedTimeSinceCommit := humanizeDuration(timeSinceCommit)
 
-			commitMessages += fmt.Sprintf("%s - %s (%s)\n", commit.Hash.String()[:7], commit.Message, formattedTimeSinceCommit)
+			commitMessages += fmt.Sprintf("%s - %s (%s)\n", commit.Hash.String()[:7], strings.TrimSuffix(commit.Message, "\n"), formattedTimeSinceCommit)
 		}
 		return nil
 	})
