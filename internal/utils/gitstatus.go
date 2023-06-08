@@ -1,11 +1,34 @@
+/*
+Prompt that was the basis for gitstatus.go used with ChatGPT
+
+As a Golang Developer, create a script that will return information commits in git repositories
+This script should contain 2 functions: GetDailyCommits and GetWeeklyCommits
+The GetDailyCommits function should take in a path and return all of the commits for the git repositories it finds under that path from the current day
+the return value from GetDailyCommits should be as follows:
+
+	RepoName1
+	Commit Hash - Commit Message (# of hours ago the commit was made)
+
+	RepoName2
+	Commit Hash - Commit Message (# of hours ago the commit was made)
+	Commit Hash - Commit Message (# of hours ago the commit was made)
+
+For example the return for GetDailyCommits when passed a path with 1 git repository under it named Harambot:
+
+	Harambot
+	1655c81 - Added new main.tf for azure deployments (1 hour ago)
+	5bc9bdd - Fixed an issue with parsing team names (12 hours ago)
+
+The GetWeeklyCommits should be similar however instead of only returning commits from the last day it should return all the commits from the past 7 days. Its output should be formated the same way GetDailyCommits is
+*/
 package utils
 
 import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
-    "strings"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/object"

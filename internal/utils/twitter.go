@@ -8,9 +8,9 @@ import (
 	twitterscraper "github.com/n0madic/twitter-scraper"
 )
 
-func GetLatestTweet() (string, error) {
+func GetLatestTweet(username string) (string, error) {
 	scraper := twitterscraper.New()
-	tweet := <-scraper.GetTweets(context.Background(), "tinycarebot", 1)
+	tweet := <-scraper.GetTweets(context.Background(), username, 1)
 	if tweet.Error != nil {
 		return "", tweet.Error
 	}

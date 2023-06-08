@@ -44,7 +44,7 @@ func main() {
 
 	weatherView.SetBorder(true).SetTitle("Weather")
 
-	tweet, err := utils.GetLatestTweet()
+	tinyCareBotTweet, err := utils.GetLatestTweet("tinycarebot")
 
 	if err != nil {
 		panic(err)
@@ -53,9 +53,21 @@ func main() {
 	tinycarebotView := tview.NewTextView().
 		SetTextAlign(tview.AlignCenter).
 		SetDynamicColors(true).
-		SetText(tweet)
+		SetText(tinyCareBotTweet)
 
 	tinycarebotView.SetBorder(true).SetTitle("Tinycarebot")
+
+	selfCareBotTweet, err := utils.GetLatestTweet("selfcare_bot")
+	if err != nil {
+		panic(err)
+	}
+
+	selfcarebotView := tview.NewTextView().
+		SetTextAlign(tview.AlignCenter).
+		SetDynamicColors(true).
+		SetText(selfCareBotTweet)
+
+	selfcarebotView.SetBorder(true).SetTitle("Selfcarebot")
 
 	tasks, err := utils.GetTodaysTasks()
 	if err != nil {
@@ -67,7 +79,7 @@ func main() {
 		SetDynamicColors(true).
 		SetText(tasks)
 
-	tasksView.SetBorder(true).SetTitle("Tasks")
+	tasksView.SetBorder(true).SetTitle("Today's Tasks")
 
 	flex := tview.NewFlex().
 		AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
@@ -75,7 +87,8 @@ func main() {
 			AddItem(weeklyView, 0, 1, false), 0, 2, false).
 		AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
 			AddItem(weatherView, 0, 1, false).
-			AddItem(tinycarebotView, 0, 2, false).
+			AddItem(tinycarebotView, 0, 1, false).
+			AddItem(selfcarebotView, 0, 1, false).
 			AddItem(tasksView, 0, 6, false), 0, 1, false)
 
 	app.SetRoot(flex, true).SetFocus(flex)
