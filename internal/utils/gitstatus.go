@@ -25,7 +25,7 @@ func GetDailyCommits(path string) (string, error) {
 		}
 
 		if len(commitMessages) > 0 {
-			result += fmt.Sprintf("%s\n", repo)
+			result += fmt.Sprintf("[red]%s[white]\n", repo)
 			result += commitMessages + "\n"
 		}
 	}
@@ -47,7 +47,7 @@ func GetWeeklyCommits(path string) (string, error) {
 		}
 
 		if len(commitMessages) > 0 {
-			result += fmt.Sprintf("%s\n", repo)
+			result += fmt.Sprintf("[red]%s[white]\n", repo)
 			result += commitMessages + "\n"
 		}
 	}
