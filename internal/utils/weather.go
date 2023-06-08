@@ -14,7 +14,6 @@ import (
 func GetWeather(postalCode string) (string, error) {
 	// Make HTTP request
 	reqUrl := "https://weather.com/weather/today/l/" + postalCode + ":4:US"
-	fmt.Println(reqUrl)
 	response, err := http.Get(reqUrl)
 	if err != nil {
 		return "", err

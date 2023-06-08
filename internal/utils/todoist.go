@@ -49,7 +49,6 @@ func GetTodaysTasks() (string, error) {
 	// Print the tasks
 	var output string
 	for _, task := range tasks {
-		fmt.Printf("Task: %v\n", task)
 		output += fmt.Sprintf("* %s\n", task["content"])
 	}
 
