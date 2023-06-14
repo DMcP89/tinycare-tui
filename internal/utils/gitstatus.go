@@ -123,7 +123,7 @@ func getCommitsFromTimeRange(repoPath string, since time.Time, until time.Time) 
 			timeSinceCommit := time.Since(commit.Committer.When)
 			formattedTimeSinceCommit := humanizeDuration(timeSinceCommit)
 
-			commitMessages += fmt.Sprintf("%s - %s (%s)\n", commit.Hash.String()[:7], strings.TrimSuffix(commit.Message, "\n"), formattedTimeSinceCommit)
+			commitMessages += fmt.Sprintf("[yellow]%s[white] - %s (%s)\n", commit.Hash.String()[:7], strings.TrimSuffix(commit.Message, "\n"), formattedTimeSinceCommit)
 		}
 		return nil
 	})
@@ -137,5 +137,5 @@ func getCommitsFromTimeRange(repoPath string, since time.Time, until time.Time) 
 
 func humanizeDuration(duration time.Duration) string {
 	hours := int(duration.Hours())
-	return fmt.Sprintf("%d hours ago", hours)
+	return fmt.Sprintf("[green]%d h(s) ago[white]", hours)
 }

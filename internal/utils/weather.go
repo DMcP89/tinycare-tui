@@ -34,5 +34,5 @@ func GetWeather(postalCode string) (string, error) {
 	weather = strings.TrimSpace(weather)
 
 	// Print the weather
-	return fmt.Sprintf("The weather in %s is %s", location, weather), nil
+	return fmt.Sprintf("%s %s", location, weather), nil
 }
