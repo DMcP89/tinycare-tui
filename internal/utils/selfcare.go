@@ -1,19 +1,31 @@
+// ChatGPT Prompts https://chat.openai.com/share/fd3771d8-0bde-460d-bb52-4300a81cdb50
 package utils
 
-// This script should contain a function call GetLatestTweet() that returns the latest tweet from the tinycarebot twitter account using https://github.com/n0madic/twitter-scraper.
-
 import (
-//	"context"
-
-//	twitterscraper "github.com/n0madic/twitter-scraper"
+	"fmt"
+	"math/rand"
+	"time"
 )
 
-func GetLatestTweet(username string) (string, error) {
-//	scraper := twitterscraper.New()
-//	tweet := <-scraper.GetTweets(context.Background(), username, 1)
-//	if tweet.Error != nil {
-//		return "", tweet.Error
-//	}
-//	return tweet.Text, nil
-    return "Twitter is no fun", nil
+var advices = []string{
+	"Don't forget to drink enough water!",
+	"Have you gotten outside today?",
+	"Take a break and do something you enjoy.",
+	"Get a good night's sleep for better well-being.",
+	"Practice deep breathing or meditation.",
+	"Engage in regular physical exercise.",
+	"Spend time with loved ones or friends.",
+}
+
+var rng *rand.Rand
+
+func init() {
+	seed := time.Now().UnixNano()
+	src := rand.NewSource(seed)
+	rng = rand.New(src)
+}
+
+func GetSelfCareAdvice() string {
+	randomIndex := rng.Intn(len(advices))
+	return fmt.Sprintf("%s \n ༼ つ ◕_◕ ༽つ", advices[randomIndex])
 }

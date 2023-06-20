@@ -7,7 +7,6 @@ import (
 
 func main() {
 
-
 	app := tview.NewApplication()
 
 	daily_commits, err := utils.GetDailyCommits("/home/dave/workspace/projects")
@@ -46,26 +45,25 @@ func main() {
 
 	weatherView.SetBorder(true).SetTitle("Weather ⛅")
 
-    tasks,err := utils.GetTodaysTasks()
-    if err != nil{
-        panic(err)
-    }
+	tasks, err := utils.GetTodaysTasks()
+	if err != nil {
+		panic(err)
+	}
 
 	tasksView := tview.NewTextView().
 		SetTextAlign(tview.AlignLeft).
 		SetDynamicColors(true).
-        SetWordWrap(false).
-        SetWrap(false).
+		SetWordWrap(false).
+		SetWrap(false).
 		SetText(tasks)
 
 	tasksView.SetBorder(true).SetTitle("Today's Tasks 📋")
 
-
 	selfCareView := tview.NewTextView().
-        SetTextAlign(tview.AlignCenter).
+		SetTextAlign(tview.AlignCenter).
 		SetDynamicColors(true).
-        SetText("Remeber to drink some water!\n ༼ つ ◕_◕ ༽つ")
-    selfCareView.SetBorder(true).SetTitle("Self Care")
+		SetText(utils.GetSelfCareAdvice())
+	selfCareView.SetBorder(true).SetTitle("Self Care")
 
 	flex := tview.NewFlex().
 		AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
@@ -73,8 +71,8 @@ func main() {
 			AddItem(weeklyView, 0, 2, false), 0, 2, false).
 		AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
 			AddItem(weatherView, 0, 1, false).
-            AddItem(selfCareView, 0, 1, false).
-			AddItem(tasksView, 0, 4, false),0,1,false)
+			AddItem(selfCareView, 0, 1, false).
+			AddItem(tasksView, 0, 4, false), 0, 1, false)
 
 	app.SetRoot(flex, true).SetFocus(flex)
 

@@ -5,7 +5,6 @@ go 1.20
 require (
 	github.com/PuerkitoBio/goquery v1.8.1
 	github.com/go-git/go-git/v5 v5.7.0
-	github.com/n0madic/twitter-scraper v0.0.0-20230605104956-44d387336cf9
 	github.com/rivo/tview v0.0.0-20230530133550-8bd761dda819
 )
 
