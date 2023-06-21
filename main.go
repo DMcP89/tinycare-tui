@@ -85,7 +85,7 @@ func main() {
 		SetTextAlign(tview.AlignCenter).
 		SetDynamicColors(true).
 		SetText(utils.GetSelfCareAdvice())
-	selfCareView.SetBorder(true).SetTitle("Self Care")
+	selfCareView.SetBorder(true).SetTitle("Self Care 😁")
 
 	textViews := []tview.Primitive{
 		dailyView,
