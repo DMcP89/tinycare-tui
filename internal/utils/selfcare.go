@@ -17,6 +17,15 @@ var advices = []string{
 	"Spend time with loved ones or friends.",
 }
 
+var emoji = []string{
+	"ᕕ(⌐■_■)ᕗ ♪♬",
+	"༼ つ ◕_◕ ༽つ",
+	"(◕ᴥ◕ʋ)",
+	"(ﾉ◕ヮ◕)ﾉ*:・ﾟ✧",
+	"ᕕ( ᐛ )ᕗ",
+	"L(° O °L)",
+}
+
 var rng *rand.Rand
 
 func init() {
@@ -26,6 +35,7 @@ func init() {
 }
 
 func GetSelfCareAdvice() string {
-	randomIndex := rng.Intn(len(advices))
-	return fmt.Sprintf("%s \n ༼ つ ◕_◕ ༽つ", advices[randomIndex])
+	randomAdviceIndex := rng.Intn(len(advices))
+	randomEmojiIndex := rng.Intn(len(emoji))
+	return fmt.Sprintf("%s \n %s", advices[randomAdviceIndex], emoji[randomEmojiIndex])
 }
