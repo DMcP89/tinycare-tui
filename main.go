@@ -2,8 +2,30 @@ package main
 
 import (
 	"github.com/DMcP89/tinycare-tui/internal/utils"
+	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
+
+func cycleFocus(app *tview.Application, elements []tview.Primitive, reverse bool) {
+	for i, el := range elements {
+		if !el.HasFocus() {
+			continue
+		}
+
+		if reverse {
+			i = i - 1
+			if i < 0 {
+				i = len(elements) - 1
+			}
+		} else {
+			i = i + 1
+			i = i % len(elements)
+		}
+
+		app.SetFocus(elements[i])
+		return
+	}
+}
 
 func main() {
 
@@ -65,14 +87,31 @@ func main() {
 		SetText(utils.GetSelfCareAdvice())
 	selfCareView.SetBorder(true).SetTitle("Self Care")
 
+	textViews := []tview.Primitive{
+		dailyView,
+		weeklyView,
+		weatherView,
+		selfCareView,
+		tasksView,
+	}
+
 	flex := tview.NewFlex().
 		AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
-			AddItem(dailyView, 0, 1, false).
-			AddItem(weeklyView, 0, 2, false), 0, 2, false).
+			AddItem(dailyView, 0, 1, true).
+			AddItem(weeklyView, 0, 2, false), 0, 2, true).
 		AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
 			AddItem(weatherView, 0, 1, false).
 			AddItem(selfCareView, 0, 1, false).
 			AddItem(tasksView, 0, 4, false), 0, 1, false)
+
+	flex.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		if event.Key() == tcell.KeyTab {
+			cycleFocus(app, textViews, false)
+		} else if event.Key() == tcell.KeyBacktab {
+			cycleFocus(app, textViews, true)
+		}
+		return event
+	})
 
 	app.SetRoot(flex, true).SetFocus(flex)
 
