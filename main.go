@@ -31,13 +31,11 @@ func main() {
 
 	app := tview.NewApplication()
 
-	newPrimitive := func(text string, title string, text_alignment int) tview.Primitive {
+	newTextView := func(text string, text_alignment int) *tview.TextView {
 		return tview.NewTextView().
 			SetText(text).
 			SetTextAlign(text_alignment).
-			SetDynamicColors(true).
-			SetBorder(true).
-			SetTitle(title)
+			SetDynamicColors(true)
 	}
 
 	daily_commits, err := utils.GetDailyCommits("/home/dave/workspace/projects")
@@ -46,29 +44,22 @@ func main() {
 		panic(err)
 	}
 
-	dailyView := newPrimitive(daily_commits, "Daily Commits 📦", tview.AlignLeft)
+	dailyView := newTextView(daily_commits, tview.AlignLeft)
+	dailyView.SetBorder(true).SetTitle("Daily Commits 📦")
 
 	weekly_commits, err := utils.GetWeeklyCommits("/home/dave/workspace/projects")
 	if err != nil {
 		panic(err)
 	}
 
-	weeklyView := tview.NewTextView().
-		SetText(weekly_commits).
-		SetTextAlign(tview.AlignLeft).
-		SetDynamicColors(true)
-
+	weeklyView := newTextView(weekly_commits, tview.AlignLeft)
 	weeklyView.SetBorder(true).SetTitle("Weekly Commits 📦")
 
 	weather, err := utils.GetWeather("07070")
 	if err != nil {
 		panic(err)
 	}
-	weatherView := tview.NewTextView().
-		SetText(weather).
-		SetTextAlign(tview.AlignCenter).
-		SetDynamicColors(true)
-
+	weatherView := newTextView(weather, tview.AlignCenter)
 	weatherView.SetBorder(true).SetTitle("Weather ⛅")
 
 	tasks, err := utils.GetTodaysTasks()
@@ -76,19 +67,10 @@ func main() {
 		panic(err)
 	}
 
-	tasksView := tview.NewTextView().
-		SetTextAlign(tview.AlignLeft).
-		SetDynamicColors(true).
-		SetWordWrap(false).
-		SetWrap(false).
-		SetText(tasks)
-
+	tasksView := newTextView(tasks, tview.AlignLeft).SetWordWrap(false).SetWrap(false)
 	tasksView.SetBorder(true).SetTitle("Today's Tasks 📋")
 
-	selfCareView := tview.NewTextView().
-		SetTextAlign(tview.AlignCenter).
-		SetDynamicColors(true).
-		SetText(utils.GetSelfCareAdvice())
+	selfCareView := newTextView(utils.GetSelfCareAdvice(), tview.AlignCenter)
 	selfCareView.SetBorder(true).SetTitle("Self Care 😁")
 
 	textViews := []tview.Primitive{
