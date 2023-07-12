@@ -31,18 +31,22 @@ func main() {
 
 	app := tview.NewApplication()
 
+	newPrimitive := func(text string, title string, text_alignment int) tview.Primitive {
+		return tview.NewTextView().
+			SetText(text).
+			SetTextAlign(text_alignment).
+			SetDynamicColors(true).
+			SetBorder(true).
+			SetTitle(title)
+	}
+
 	daily_commits, err := utils.GetDailyCommits("/home/dave/workspace/projects")
 
 	if err != nil {
 		panic(err)
 	}
 
-	dailyView := tview.NewTextView().
-		SetText(daily_commits).
-		SetTextAlign(tview.AlignLeft).
-		SetDynamicColors(true)
-
-	dailyView.SetBorder(true).SetTitle("Daily Commits 📥")
+	dailyView := newPrimitive(daily_commits, "Daily Commits 📦", tview.AlignLeft)
 
 	weekly_commits, err := utils.GetWeeklyCommits("/home/dave/workspace/projects")
 	if err != nil {
