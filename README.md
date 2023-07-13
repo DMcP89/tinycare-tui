@@ -7,3 +7,5 @@
 - [ ] Allow for local todo list for todays tasks
 - [ ] Replace hardcoded values with env variables
 - [ ] Have task view show completed tasks as well
+- [ ] Refresh the view every 5 minutes
+- [x] Have 'q' exit the app

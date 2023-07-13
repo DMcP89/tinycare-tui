@@ -95,6 +95,8 @@ func main() {
 			cycleFocus(app, textViews, false)
 		} else if event.Key() == tcell.KeyBacktab {
 			cycleFocus(app, textViews, true)
+		} else if (event.Key() == tcell.KeyRune) && (event.Rune() == rune('q')) {
+			app.Stop()
 		}
 		return event
 	})
