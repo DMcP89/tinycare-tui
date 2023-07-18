@@ -27,6 +27,12 @@ func cycleFocus(app *tview.Application, elements []tview.Primitive, reverse bool
 	}
 }
 
+func refresh(app *tview.Application, selfCareView *tview.TextView) {
+	app.QueueUpdateDraw(func() {
+		selfCareView.SetText(utils.GetSelfCareAdvice())
+	})
+}
+
 func main() {
 
 	app := tview.NewApplication()
@@ -97,6 +103,8 @@ func main() {
 			cycleFocus(app, textViews, true)
 		} else if (event.Key() == tcell.KeyRune) && (event.Rune() == rune('q')) {
 			app.Stop()
+		} else if (event.Key() == tcell.KeyRune) && (event.Rune() == rune('r')) {
+			go refresh(app, selfCareView)
 		}
 		return event
 	})
