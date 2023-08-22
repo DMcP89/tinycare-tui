@@ -27,25 +27,18 @@ func NewTabTextView(next *TabTextView) *TabTextView {
 	}
 }
 
-func refresh(app *tview.Application, selfCareView *TabTextView) {
+func Refresh(app *tview.Application, selfCareView *TabTextView, tasksView *TabTextView, weatherView *TabTextView, weeklyView *TabTextView, dailyView *TabTextView) {
 	app.QueueUpdateDraw(func() {
 		selfCareView.SetText(utils.GetSelfCareAdvice())
+		tasks, weather, weekly_commits, daily_commits := GetTextForViews()
+		tasksView.SetText(tasks)
+		weatherView.SetText(weather)
+		weeklyView.SetText(weekly_commits)
+		dailyView.SetText(daily_commits)
 	})
 }
 
-func main() {
-
-	app := tview.NewApplication()
-
-	newTabTextView := func(text string, text_alignment int, next *TabTextView) *TabTextView {
-		view := NewTabTextView(next)
-		view.SetText(text).
-			SetTextAlign(text_alignment).
-			SetDynamicColors(true)
-		return view
-
-	}
-
+func GetTextForViews() (string, string, string, string) {
 	daily_commits, err := utils.GetDailyCommits("/home/dave/workspace/projects")
 
 	if err != nil {
@@ -66,6 +59,23 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	return tasks, weather, weekly_commits, daily_commits
+}
+
+func main() {
+
+	app := tview.NewApplication()
+
+	newTabTextView := func(text string, text_alignment int, next *TabTextView) *TabTextView {
+		view := NewTabTextView(next)
+		view.SetText(text).
+			SetTextAlign(text_alignment).
+			SetDynamicColors(true)
+		return view
+
+	}
+
+	tasks, weather, weekly_commits, daily_commits := GetTextForViews()
 
 	tasksView := newTabTextView(tasks, tview.AlignLeft, nil)
 	tasksView.SetWordWrap(false).SetWrap(false)
@@ -100,7 +110,7 @@ func main() {
 		} else if (event.Key() == tcell.KeyRune) && (event.Rune() == rune('q')) {
 			app.Stop()
 		} else if (event.Key() == tcell.KeyRune) && (event.Rune() == rune('r')) {
-			go refresh(app, selfCareView)
+			go Refresh(app, selfCareView, tasksView, weatherView, weeklyView, dailyView)
 		}
 		return event
 	})
