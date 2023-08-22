@@ -1,7 +1,7 @@
 # Tinycare-tui
 
 Small terminal app that shows git commits from the last 24 hours and week, current weather, some self care advice, and you current todoist tasks
-inspired by @notwaldorf's [tiny-care-terminal](https://github.com/notwaldorf/tiny-care-terminal)
+inspired by @notwaldorf [tiny-care-terminal](https://github.com/notwaldorf/tiny-care-terminal)
 
 ## TO-DOs
 - [x] Allow for focusing on each box
