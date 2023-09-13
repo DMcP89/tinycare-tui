@@ -8,7 +8,9 @@ inspired by @notwaldorf's [tiny-care-terminal](https://github.com/notwaldorf/tin
 - [x] Expand on self care reminders
 - [x] Remove twitter scraping code
 - [ ] Allow for local todo list for todays tasks
-- [ ] Replace hardcoded values with env variables
+- [x] Replace hardcoded values with env variables
 - [ ] Have task view show completed tasks as well
 - [x] Refresh the view on 'r'
 - [x] Have 'q' exit the app
+- [ ] Optimize with go routines
+

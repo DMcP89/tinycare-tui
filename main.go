@@ -1,6 +1,8 @@
 package main
 
 import (
+	"os"
+
 	"github.com/DMcP89/tinycare-tui/internal/utils"
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
@@ -39,18 +41,18 @@ func Refresh(app *tview.Application, selfCareView *TabTextView, tasksView *TabTe
 }
 
 func GetTextForViews() (string, string, string, string) {
-	daily_commits, err := utils.GetDailyCommits("/home/dave/workspace/projects")
+	daily_commits, err := utils.GetDailyCommits(os.Getenv("TINYCARE_WORKSPACE"))
 
 	if err != nil {
 		panic(err)
 	}
 
-	weekly_commits, err := utils.GetWeeklyCommits("/home/dave/workspace/projects")
+	weekly_commits, err := utils.GetWeeklyCommits(os.Getenv("TINYCARE_WORKSPACE"))
 	if err != nil {
 		panic(err)
 	}
 
-	weather, err := utils.GetWeather("07070")
+	weather, err := utils.GetWeather(os.Getenv("TINYCARE_POSTAL_CODE"))
 	if err != nil {
 		panic(err)
 	}
