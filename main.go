@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"strings"
 
 	"github.com/DMcP89/tinycare-tui/internal/utils"
 	"github.com/gdamore/tcell/v2"
@@ -41,15 +42,45 @@ func Refresh(app *tview.Application, selfCareView *TabTextView, tasksView *TabTe
 }
 
 func GetTextForViews() (string, string, string, string) {
-	daily_commits, err := utils.GetDailyCommits(os.Getenv("TINYCARE_WORKSPACE"))
 
-	if err != nil {
-		panic(err)
+	var daily_commits string
+	if strings.Contains(os.Getenv("TINYCARE_WORKSPACE"), ",") {
+		for _, path := range strings.Split(os.Getenv("TINYCARE_WORKSPACE"), ",") {
+			commits, err := utils.GetDailyCommits(path)
+			if err != nil {
+				panic(err)
+			}
+
+			daily_commits = daily_commits + commits
+		}
+	} else {
+		commits, err := utils.GetDailyCommits(os.Getenv("TINYCARE_WORKSPACE"))
+
+		if err != nil {
+			panic(err)
+		}
+
+		daily_commits = commits
 	}
 
-	weekly_commits, err := utils.GetWeeklyCommits(os.Getenv("TINYCARE_WORKSPACE"))
-	if err != nil {
-		panic(err)
+	var weekly_commits string
+	if strings.Contains(os.Getenv("TINYCARE_WORKSPACE"), ",") {
+		for _, path := range strings.Split(os.Getenv("TINYCARE_WORKSPACE"), ",") {
+			commits, err := utils.GetWeeklyCommits(path)
+			if err != nil {
+				panic(err)
+			}
+
+			weekly_commits = daily_commits + commits
+		}
+	} else {
+		commits, err := utils.GetWeeklyCommits(os.Getenv("TINYCARE_WORKSPACE"))
+
+		if err != nil {
+			panic(err)
+		}
+
+		weekly_commits = commits
 	}
 
 	weather, err := utils.GetWeather(os.Getenv("TINYCARE_POSTAL_CODE"))
