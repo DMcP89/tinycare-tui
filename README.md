@@ -13,4 +13,5 @@ inspired by @notwaldorf [tiny-care-terminal](https://github.com/notwaldorf/tiny-
 - [x] Refresh the view on 'r'
 - [x] Have 'q' exit the app
 - [ ] Optimize with go routines
-- [ ] Allow for multiple git repo locations
+- [x] Allow for multiple git repo locations
+- [ ] Provide option to pull commits from github instead of from local repos
