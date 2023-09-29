@@ -11,6 +11,7 @@ inspired by @notwaldorf [tiny-care-terminal](https://github.com/notwaldorf/tiny-
 - [x] Replace hardcoded values with env variables
 - [ ] Have task view show completed tasks as well
 - [x] Refresh the view on 'r'
+- [x] Have views refresh in 30 second intervals
 - [x] Have 'q' exit the app
 - [ ] Optimize with go routines
 - [x] Allow for multiple git repo locations
