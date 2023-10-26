@@ -13,6 +13,6 @@ inspired by @notwaldorf [tiny-care-terminal](https://github.com/notwaldorf/tiny-
 - [x] Have 'q' exit the app
 - [x] Optimize with go routines
 - [x] Allow for multiple git repo locations
+- [x] Allow for local todo list for todays tasks
 - [ ] Provide option to pull commits from github instead of from local repos
-- [ ] Allow for local todo list for todays tasks
 - [ ] Have task view show completed tasks as well

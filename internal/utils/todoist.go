@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -8,8 +9,43 @@ import (
 	"os"
 )
 
+func GetTasks() (string, error) {
+	// Check for the existance of the environment variable TODOIST_TOKEN
+	if token, ok := os.LookupEnv("TODOIST_TOKEN"); ok {
+		return GetTodaysTasks(token)
+	} else {
+		return GetLocalTasks()
+	}
+}
+
+func GetLocalTasks() (string, error) {
+	// Check for the existance of the environment variable TODO_FILE
+	// If it exists return its contents as a string
+	// If it does not exist return "Please set your TODO_FILE variable"
+	if todoFile, ok := os.LookupEnv("TODO_FILE"); ok {
+		file, err := os.Open(todoFile)
+		if err != nil {
+			return fmt.Sprintf("Unable to open %s", todoFile), nil
+		}
+		defer file.Close()
+
+		var output string
+		scanner := bufio.NewScanner(file)
+		for scanner.Scan() {
+			output += fmt.Sprintf("☐ %s\n", scanner.Text())
+		}
+
+		if err := scanner.Err(); err != nil {
+			return "", err
+		}
+		return output, nil
+	} else {
+		return "Please set your TODO_FILE variable", nil
+	}
+}
+
 // GetTodaysTasks will retrieve the tasks for today by querying the Todoist API.
-func GetTodaysTasks() (string, error) {
+func GetTodaysTasks(token string) (string, error) {
 	// Make HTTP request
 	reqURL := "https://api.todoist.com/rest/v2/tasks?filter=today"
 	req, err := http.NewRequest("GET", reqURL, nil)
@@ -18,7 +54,7 @@ func GetTodaysTasks() (string, error) {
 	}
 
 	// Set the API token as a header
-	req.Header.Set("Authorization", "Bearer "+os.Getenv("TODOIST_TOKEN"))
+	req.Header.Set("Authorization", "Bearer "+token)
 
 	// Send HTTP request
 	client := &http.Client{}
@@ -49,7 +85,7 @@ func GetTodaysTasks() (string, error) {
 	// Print the tasks
 	var output string
 	for _, task := range tasks {
-		output += fmt.Sprintf("* %s\n", task["content"])
+		output += fmt.Sprintf("☐ %s\n", task["content"])
 	}
 
 	return output, nil

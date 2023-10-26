@@ -84,7 +84,7 @@ func main() {
 		RefreshText(app, selfCareView, func() (string, error) {
 			return utils.GetSelfCareAdvice(), nil
 		})
-		RefreshText(app, tasksView, utils.GetTodaysTasks)
+		RefreshText(app, tasksView, utils.GetTasks)
 		RefreshText(app, weatherView, func() (string, error) {
 			return utils.GetWeather(os.Getenv("TINYCARE_POSTAL_CODE"))
 		})
