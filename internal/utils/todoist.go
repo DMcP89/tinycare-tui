@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"time"
 )
 
 func GetTasks() (string, error) {
@@ -87,6 +88,11 @@ func GetTodaysTasks(token string) (string, error) {
 	for _, task := range tasks {
 		output += fmt.Sprintf("☐ %s\n", task["content"])
 	}
-
+	GetCompletedTasks(token)
 	return output, nil
+}
+
+func GetCompletedTasks(token string) {
+	today := time.Now()
+	fmt.Println(today.Format("2006-01-02") + "T00:00:00")
 }
