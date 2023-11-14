@@ -54,7 +54,7 @@ func main() {
 	}
 
 	tasksView := newTabTextView("", tview.AlignLeft, nil)
-	tasksView.SetWordWrap(false).SetWrap(false)
+	tasksView.SetWordWrap(true).SetWrap(true)
 	tasksView.SetBorder(true).SetTitle("Today's Tasks 📋")
 
 	selfCareView := newTabTextView("", tview.AlignCenter, tasksView)

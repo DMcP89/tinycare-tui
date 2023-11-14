@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -88,11 +89,68 @@ func GetTodaysTasks(token string) (string, error) {
 	for _, task := range tasks {
 		output += fmt.Sprintf("☐ %s\n", task["content"])
 	}
-	GetCompletedTasks(token)
+	completed, err := GetCompletedTasks(token)
+	if err != nil {
+		output += "Could not fetch completed tasks \n"
+		output += err.Error()
+		output += completed
+		return output, nil
+	}
+	output += completed
 	return output, nil
 }
 
-func GetCompletedTasks(token string) {
-	today := time.Now()
-	fmt.Println(today.Format("2006-01-02") + "T00:00:00")
+func GetCompletedTasks(token string) (string, error) {
+	reqURL := "https://api.todoist.com/sync/v9/completed/get_all"
+	today := strings.Split(time.Now().Format(time.RFC3339), "T")[0]
+
+	var output string
+	req, err := http.NewRequest("GET", reqURL, nil)
+	if err != nil {
+		return "Cannot create request", err
+	}
+	q := req.URL.Query()
+	q.Add("since", today+"T00:00:00")
+	req.URL.RawQuery = q.Encode()
+
+	// Set the API token as a header
+	req.Header.Set("Authorization", "Bearer "+token)
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return "400?", err
+	}
+	defer resp.Body.Close()
+
+	// Check the response status code
+	if resp.StatusCode != http.StatusOK {
+		return output, fmt.Errorf("unexpected response status code: %d", resp.StatusCode)
+	}
+
+	// Read the response body
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+
+	// Unmarshal the JSON data
+	var tasks map[string]interface{}
+	err = json.Unmarshal(body, &tasks)
+	if err != nil {
+		return "", err
+	}
+	// Print the tasks
+
+	if items, ok := tasks["items"].([]interface{}); ok {
+		for _, task := range items {
+			task, ok := task.(map[string]interface{})
+			if !ok {
+				continue
+			}
+			//fmt.Println(task["content"])
+			output += fmt.Sprintf("✅ %s\n", task["content"])
+		}
+	}
+	return output, nil
+
 }
