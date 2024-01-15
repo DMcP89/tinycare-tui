@@ -14,5 +14,13 @@ inspired by @notwaldorf [tiny-care-terminal](https://github.com/notwaldorf/tiny-
 - [x] Optimize with go routines
 - [x] Allow for multiple git repo locations
 - [x] Allow for local todo list for todays tasks
+- [x] Have task view show completed tasks as well
 - [ ] Provide option to pull commits from github instead of from local repos
-- [ ] Have task view show completed tasks as well
+- [ ] Add error handling for missing environment variables
+
+
+## About
+I started this project to accomplish a few different goals
+1. Teach myself the basics of the Go language
+2. Practice leveraging generative AI tools like copilot and chatgpt for development
+3. Create a fun terminal app

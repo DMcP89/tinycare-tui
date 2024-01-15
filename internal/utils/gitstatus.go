@@ -34,6 +34,15 @@ import (
 	"github.com/go-git/go-git/v5/plumbing/object"
 )
 
+func GetGitHubCommits() (string, error) {
+	if token, ok := os.LookupEnv("GITHUB_TOKEN"); ok {
+		// get commits from github
+	} else {
+		// return error
+	}
+	return "", nil
+}
+
 func GetDailyCommits(path string) (string, error) {
 	repositories, err := findGitRepositories(path)
 	if err != nil {
