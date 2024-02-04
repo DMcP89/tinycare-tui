@@ -17,6 +17,9 @@ inspired by @notwaldorf [tiny-care-terminal](https://github.com/notwaldorf/tiny-
 - [x] Have task view show completed tasks as well
 - [ ] Provide option to pull commits from github instead of from local repos
 - [ ] Add error handling for missing environment variables
+- [ ] Performance tuning
+- [ ] Logging
+- [ ] Refactoring
 
 
 ## About

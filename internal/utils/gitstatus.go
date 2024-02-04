@@ -92,88 +92,89 @@ type Event struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
+const reqUrl = "https://api.github.com"
+
+func SendRequest(req *http.Request) ([]byte, error) {
+	// Send HTTP request
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	// Check the response status code
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("unexpected response status code: %d", resp.StatusCode)
+	}
+
+	// Read the response body
+	return io.ReadAll(resp.Body)
+}
+
+func GetGitHubUser(token string) (string, error) {
+	userEndpoint := "/user"
+	// get the username of the authenticated user
+	req, err := http.NewRequest("GET", reqUrl+userEndpoint, nil)
+
+	if err != nil {
+		return "", err
+	}
+	// Set the API token as a header
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	body, err := SendRequest(req)
+	if err != nil {
+		return "", err
+	}
+
+	var user map[string]interface{}
+	err = json.Unmarshal(body, &user)
+	return user["login"].(string), err
+}
+
+func GetGitHubEvents(token string, login string) ([]Event, error) {
+	eventsEndpoint := fmt.Sprintf("/users/%s/events?per_page=10", login)
+
+	req, err := http.NewRequest("GET", reqUrl+eventsEndpoint, nil)
+
+	if err != nil {
+		return nil, err
+	}
+	// Set the API token as a header
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	body, err := SendRequest(req)
+	if err != nil {
+		return nil, err
+	}
+	// Unmarshal the JSON data
+
+	var events []Event
+	err = json.Unmarshal(body, &events)
+
+	return events, err
+}
+
 func GetGitHubCommits() (string, error) {
 	if token, ok := os.LookupEnv("GITHUB_TOKEN"); ok {
-		reqUrl := "https://api.github.com"
-		userEndpoint := "/user"
-		// get the username of the authenticated user
-		req, err := http.NewRequest("GET", reqUrl+userEndpoint, nil)
-
-		if err != nil {
-			return "Error Creating request", err
+		user, userErr := GetGitHubUser(token)
+		if userErr != nil {
+			return "Error Getting User", userErr
 		}
-		// Set the API token as a header
-		req.Header.Set("Authorization", "Bearer "+token)
-
-		// Send HTTP request
-		client := &http.Client{}
-		resp, err := client.Do(req)
-		if err != nil {
-			return "Error sending request", err
-		}
-		defer resp.Body.Close()
-
-		// Check the response status code
-		if resp.StatusCode != http.StatusOK {
-			return "Non 200 response", fmt.Errorf("unexpected response status code: %d", resp.StatusCode)
+		events, eventsErr := GetGitHubEvents(token, user)
+		if eventsErr != nil {
+			return "Error getting events", eventsErr
 		}
 
-		// Read the response body
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			return "Error reading the body", err
-		}
-
-		// Unmarshal the JSON data
-
-		var user map[string]interface{}
-		err = json.Unmarshal(body, &user)
-		if err != nil {
-			return "Error unmarshalling user", err
-		}
-
-		// get the events of the authenticated user
-		eventsEndpoint := fmt.Sprintf("/users/%s/events?per_page=2", user["login"])
-
-		req, err = http.NewRequest("GET", reqUrl+eventsEndpoint, nil)
-
-		if err != nil {
-			return "Error Creating request", err
-		}
-		// Set the API token as a header
-		req.Header.Set("Authorization", "Bearer "+token)
-
-		// Send HTTP request
-		resp, err = client.Do(req)
-		if err != nil {
-			return "Error sending request", err
-		}
-		defer resp.Body.Close()
-
-		// Check the response status code
-		if resp.StatusCode != http.StatusOK {
-			return "Non 200 response", fmt.Errorf("unexpected response status code: %d", resp.StatusCode)
-		}
-
-		// Read the response body
-		body, err = io.ReadAll(resp.Body)
-		if err != nil {
-			return "Error reading the body", err
-		}
-
-		// Unmarshal the JSON data
-
-		var events []Event
-		err = json.Unmarshal(body, &events)
-		if err != nil {
-			return "Error unmarshalling user", err
-		}
-
-		// Print the events
 		var output string
 		for _, event := range events {
-			for _, commit := range event.Payload.Commits {
-				output += fmt.Sprintf("%s - %s (%d)", event.Repo.Name, commit.Message, event.CreatedAt)
+			if len(event.Payload.Commits) > 0 {
+				output += fmt.Sprintf("[red]%s[white]\n", event.Repo.Name)
+				for _, commit := range event.Payload.Commits {
+					timeSinceCommit := time.Since(event.CreatedAt)
+					formattedTimeSinceCommit := humanizeDuration(timeSinceCommit)
+					output += fmt.Sprintf("[yello]%s[white] (%s)\n", commit.Message, formattedTimeSinceCommit)
+				}
 			}
 		}
 		return output, nil
@@ -181,7 +182,6 @@ func GetGitHubCommits() (string, error) {
 	} else {
 		return "No Token set", nil
 	}
-	return "", nil
 }
 
 func GetDailyCommits(path string) (string, error) {

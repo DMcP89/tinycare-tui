@@ -89,10 +89,18 @@ func main() {
 			return utils.GetWeather(os.Getenv("TINYCARE_POSTAL_CODE"))
 		})
 		RefreshText(app, weeklyView, func() (string, error) {
-			return utils.GetWeeklyCommits(os.Getenv("TINYCARE_WORKSPACE"))
+			if _, ok := os.LookupEnv("GITHUB_TOKEN"); ok {
+				return utils.GetGitHubCommits()
+			} else {
+				return utils.GetWeeklyCommits(os.Getenv("TINYCARE_WORKSPACE"))
+			}
 		})
 		RefreshText(app, dailyView, func() (string, error) {
-			return utils.GetDailyCommits(os.Getenv("TINYCARE_WORKSPACE"))
+			if _, ok := os.LookupEnv("GITHUB_TOKEN"); ok {
+				return utils.GetGitHubCommits()
+			} else {
+				return utils.GetDailyCommits(os.Getenv("TINYCARE_WORKSPACE"))
+			}
 		})
 	}
 
