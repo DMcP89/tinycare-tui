@@ -155,20 +155,32 @@ func GetGitHubEvents(token string, login string) ([]Event, error) {
 	return events, err
 }
 
-func GetGitHubCommits() (string, error) {
+func GetGitHubCommits(lookBack int) (string, error) {
 	if token, ok := os.LookupEnv("GITHUB_TOKEN"); ok {
 		user, userErr := GetGitHubUser(token)
 		if userErr != nil {
 			return "Error Getting User", userErr
 		}
-		events, eventsErr := GetGitHubEvents(token, user)
-		if eventsErr != nil {
-			return "Error getting events", eventsErr
+		var totalEvents []Event
+
+		aWeekAgo := time.Now().AddDate(0, 0, lookBack)
+		//		aDayAgo =  time.Now().AddDate(0, 0, -1)
+
+		for {
+			events, eventsErr := GetGitHubEvents(token, user)
+			if eventsErr != nil {
+				return "Error getting events", eventsErr
+			}
+			totalEvents = append(totalEvents, events...)
+			if events[len(events)-1].CreatedAt.Before(aWeekAgo) {
+				break
+			}
 		}
+		// if events
 
 		var output string
-		for _, event := range events {
-			if len(event.Payload.Commits) > 0 {
+		for _, event := range totalEvents {
+			if len(event.Payload.Commits) > 0 && event.CreatedAt.After(aWeekAgo) {
 				output += fmt.Sprintf("[red]%s[white]\n", event.Repo.Name)
 				for _, commit := range event.Payload.Commits {
 					timeSinceCommit := time.Since(event.CreatedAt)

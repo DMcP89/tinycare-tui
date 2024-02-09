@@ -90,14 +90,14 @@ func main() {
 		})
 		RefreshText(app, weeklyView, func() (string, error) {
 			if _, ok := os.LookupEnv("GITHUB_TOKEN"); ok {
-				return utils.GetGitHubCommits()
+				return utils.GetGitHubCommits(-7)
 			} else {
 				return utils.GetWeeklyCommits(os.Getenv("TINYCARE_WORKSPACE"))
 			}
 		})
 		RefreshText(app, dailyView, func() (string, error) {
 			if _, ok := os.LookupEnv("GITHUB_TOKEN"); ok {
-				return utils.GetGitHubCommits()
+				return utils.GetGitHubCommits(-1)
 			} else {
 				return utils.GetDailyCommits(os.Getenv("TINYCARE_WORKSPACE"))
 			}
