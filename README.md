@@ -15,12 +15,14 @@ inspired by @notwaldorf [tiny-care-terminal](https://github.com/notwaldorf/tiny-
 - [x] Allow for multiple git repo locations
 - [x] Allow for local todo list for todays tasks
 - [x] Have task view show completed tasks as well
-- [ ] Provide option to pull commits from github instead of from local repos
+- [x] Provide option to pull commits from github instead of from local repos
 - [ ] Add error handling for missing environment variables
 - [ ] Performance tuning
 - [ ] Logging
 - [ ] Refactoring
 - [ ] Convert time on commits to days when >24 hours
+- [ ] Refactor GitHub interactions to use go-hithub
+- [ ] Write installation guide
 
 
 ## About
