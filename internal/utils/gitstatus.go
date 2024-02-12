@@ -163,7 +163,7 @@ func GetGitHubCommits(lookBack int) (string, error) {
 		}
 		var totalEvents []Event
 
-		aWeekAgo := time.Now().AddDate(0, 0, lookBack)
+		lookBackTime := time.Now().AddDate(0, 0, lookBack)
 		//		aDayAgo =  time.Now().AddDate(0, 0, -1)
 
 		for {
@@ -172,7 +172,7 @@ func GetGitHubCommits(lookBack int) (string, error) {
 				return "Error getting events", eventsErr
 			}
 			totalEvents = append(totalEvents, events...)
-			if events[len(events)-1].CreatedAt.Before(aWeekAgo) {
+			if events[len(events)-1].CreatedAt.Before(lookBackTime) {
 				break
 			}
 		}
@@ -180,7 +180,7 @@ func GetGitHubCommits(lookBack int) (string, error) {
 
 		var output string
 		for _, event := range totalEvents {
-			if len(event.Payload.Commits) > 0 && event.CreatedAt.After(aWeekAgo) {
+			if len(event.Payload.Commits) > 0 && event.CreatedAt.After(lookBackTime) {
 				output += fmt.Sprintf("[red]%s[white]\n", event.Repo.Name)
 				for _, commit := range event.Payload.Commits {
 					timeSinceCommit := time.Since(event.CreatedAt)
