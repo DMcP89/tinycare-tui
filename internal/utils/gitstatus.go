@@ -197,9 +197,12 @@ func GetGitHubCommits(lookBack int) (string, error) {
 }
 
 func GetDailyCommits(path string) (string, error) {
+	if path == "" {
+		return "TINYCARE_WORKSPACE environment variable not set!", nil
+	}
 	repositories, err := findGitRepositories(path)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("GetDailyCommits: Unable to find git repos for %s: %w", path, err)
 	}
 
 	result := ""
@@ -219,6 +222,9 @@ func GetDailyCommits(path string) (string, error) {
 }
 
 func GetWeeklyCommits(path string) (string, error) {
+	if path == "" {
+		return "TINYCARE_WORKSPACE environment variable not set!", nil
+	}
 	repositories, err := findGitRepositories(path)
 	if err != nil {
 		return "", err

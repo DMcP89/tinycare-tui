@@ -81,25 +81,29 @@ func main() {
 			AddItem(tasksView, 0, 4, false), 0, 1, false)
 
 	refresh := func() {
-		RefreshText(app, selfCareView, func() (string, error) {
+		go RefreshText(app, selfCareView, func() (string, error) {
 			return utils.GetSelfCareAdvice(), nil
 		})
-		RefreshText(app, tasksView, utils.GetTasks)
-		RefreshText(app, weatherView, func() (string, error) {
+		go RefreshText(app, tasksView, utils.GetTasks)
+		go RefreshText(app, weatherView, func() (string, error) {
 			return utils.GetWeather(os.Getenv("TINYCARE_POSTAL_CODE"))
 		})
-		RefreshText(app, weeklyView, func() (string, error) {
+		go RefreshText(app, weeklyView, func() (string, error) {
 			if _, ok := os.LookupEnv("GITHUB_TOKEN"); ok {
 				return utils.GetGitHubCommits(-7)
 			} else {
 				return utils.GetWeeklyCommits(os.Getenv("TINYCARE_WORKSPACE"))
 			}
 		})
-		RefreshText(app, dailyView, func() (string, error) {
+		go RefreshText(app, dailyView, func() (string, error) {
 			if _, ok := os.LookupEnv("GITHUB_TOKEN"); ok {
 				return utils.GetGitHubCommits(-1)
 			} else {
-				return utils.GetDailyCommits(os.Getenv("TINYCARE_WORKSPACE"))
+				result, err := utils.GetDailyCommits(os.Getenv("TINYCARE_WORKSPACE"))
+				if err != nil {
+					return err.Error(), nil
+				}
+				return result, err
 			}
 		})
 	}
