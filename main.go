@@ -86,24 +86,52 @@ func main() {
 		})
 		go RefreshText(app, tasksView, utils.GetTasks)
 		go RefreshText(app, weatherView, func() (string, error) {
-			return utils.GetWeather(os.Getenv("TINYCARE_POSTAL_CODE"))
-		})
-		go RefreshText(app, weeklyView, func() (string, error) {
-			if _, ok := os.LookupEnv("GITHUB_TOKEN"); ok {
-				return utils.GetGitHubCommits(-7)
-			} else {
-				return utils.GetWeeklyCommits(os.Getenv("TINYCARE_WORKSPACE"))
-			}
-		})
-		go RefreshText(app, dailyView, func() (string, error) {
-			if _, ok := os.LookupEnv("GITHUB_TOKEN"); ok {
-				return utils.GetGitHubCommits(-1)
-			} else {
-				result, err := utils.GetDailyCommits(os.Getenv("TINYCARE_WORKSPACE"))
+			if POSTAL_CODE, ok := os.LookupEnv("TINYCARE_POSTAL_CODE"); ok {
+				result, err := utils.GetWeather(POSTAL_CODE)
 				if err != nil {
 					return err.Error(), nil
 				}
 				return result, err
+			} else {
+				return "Please set TINYCARE_POSTAL_CODE environment variable", nil
+			}
+		})
+		go RefreshText(app, weeklyView, func() (string, error) {
+			if token, ok := os.LookupEnv("GITHUB_TOKEN"); ok {
+				result, err := utils.GetGitHubCommits(token, -7)
+				if err != nil {
+					return err.Error(), nil
+				}
+				return result, err
+			} else {
+				if TINYCARE_WORKSPACE, ok := os.LookupEnv("TINYCARE_WORKSPACE"); ok {
+					result, err := utils.GetWeeklyCommits(TINYCARE_WORKSPACE)
+					if err != nil {
+						return err.Error(), nil
+					}
+					return result, err
+				} else {
+					return "Please set either the TINYCARE_WORKSPACE or GITHUB_TOKEN environment variables to retrive commits", nil
+				}
+			}
+		})
+		go RefreshText(app, dailyView, func() (string, error) {
+			if token, ok := os.LookupEnv("GITHUB_TOKEN"); ok {
+				result, err := utils.GetGitHubCommits(token, -1)
+				if err != nil {
+					return err.Error(), nil
+				}
+				return result, err
+			} else {
+				if TINYCARE_WORKSPACE, ok := os.LookupEnv("TINYCARE_WORKSPACE"); ok {
+					result, err := utils.GetDailyCommits(TINYCARE_WORKSPACE)
+					if err != nil {
+						return err.Error(), nil
+					}
+					return result, err
+				} else {
+					return "Please set either the TINYCARE_WORKSPACE or GITHUB_TOKEN environment variables to retrive commits", nil
+				}
 			}
 		})
 	}

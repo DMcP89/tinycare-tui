@@ -155,11 +155,11 @@ func GetGitHubEvents(token string, login string) ([]Event, error) {
 	return events, err
 }
 
-func GetGitHubCommits(lookBack int) (string, error) {
-	if token, ok := os.LookupEnv("GITHUB_TOKEN"); ok {
+func GetGitHubCommits(token string, lookBack int) (string, error) {
+	if token != "" {
 		user, userErr := GetGitHubUser(token)
 		if userErr != nil {
-			return "Error Getting User", userErr
+			return "", fmt.Errorf("Unable to get Github User: %w", userErr)
 		}
 		var totalEvents []Event
 
@@ -169,7 +169,7 @@ func GetGitHubCommits(lookBack int) (string, error) {
 		for {
 			events, eventsErr := GetGitHubEvents(token, user)
 			if eventsErr != nil {
-				return "Error getting events", eventsErr
+				return "", fmt.Errorf("Unable to get events for user %s: %w", user, eventsErr)
 			}
 			totalEvents = append(totalEvents, events...)
 			if events[len(events)-1].CreatedAt.Before(lookBackTime) {
@@ -192,7 +192,7 @@ func GetGitHubCommits(lookBack int) (string, error) {
 		return output, nil
 
 	} else {
-		return "No Token set", nil
+		return "GITHUB_TOKEN environment variable not set correctly", nil
 	}
 }
 

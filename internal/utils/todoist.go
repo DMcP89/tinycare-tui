@@ -27,7 +27,7 @@ func GetLocalTasks() (string, error) {
 	if todoFile, ok := os.LookupEnv("TODO_FILE"); ok {
 		file, err := os.Open(todoFile)
 		if err != nil {
-			return fmt.Sprintf("Unable to open %s", todoFile), nil
+			return "", fmt.Errorf("Unable to open %s : %w", todoFile, err)
 		}
 		defer file.Close()
 
@@ -38,11 +38,11 @@ func GetLocalTasks() (string, error) {
 		}
 
 		if err := scanner.Err(); err != nil {
-			return "", err
+			return "", fmt.Errorf("Unable to read %s : %w", todoFile, err)
 		}
 		return output, nil
 	} else {
-		return "Please set your TODO_FILE variable", nil
+		return "", fmt.Errorf("No TODO_FILE environment variable set")
 	}
 }
 
@@ -52,7 +52,7 @@ func GetTodaysTasks(token string) (string, error) {
 	reqURL := "https://api.todoist.com/rest/v2/tasks?filter=today"
 	req, err := http.NewRequest("GET", reqURL, nil)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("Unable to create request for todoist: %w", err)
 	}
 
 	// Set the API token as a header

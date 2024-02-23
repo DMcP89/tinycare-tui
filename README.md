@@ -8,6 +8,13 @@ inspired by @notwaldorf [tiny-care-terminal](https://github.com/notwaldorf/tiny-
 go install github.com/DMcP89/tinycare-tui@latest
 ```
 
+## Configurations
+Set the following environment variables to configure Tinycare-tui
+```
+
+```
+
+
 ## TO-DOs
 - [x] Allow for focusing on each box
 - [x] Expand on self care reminders
