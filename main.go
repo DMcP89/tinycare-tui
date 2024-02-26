@@ -84,7 +84,13 @@ func main() {
 		go RefreshText(app, selfCareView, func() (string, error) {
 			return utils.GetSelfCareAdvice(), nil
 		})
-		go RefreshText(app, tasksView, utils.GetTasks)
+		go RefreshText(app, tasksView, func() (string, error) {
+			result, err := utils.GetTasks()
+			if err != nil {
+				return err.Error(), nil
+			}
+			return result, err
+		})
 		go RefreshText(app, weatherView, func() (string, error) {
 			if POSTAL_CODE, ok := os.LookupEnv("TINYCARE_POSTAL_CODE"); ok {
 				result, err := utils.GetWeather(POSTAL_CODE)

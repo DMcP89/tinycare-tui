@@ -52,7 +52,7 @@ func GetTodaysTasks(token string) (string, error) {
 	reqURL := "https://api.todoist.com/rest/v2/tasks?filter=today"
 	req, err := http.NewRequest("GET", reqURL, nil)
 	if err != nil {
-		return "", fmt.Errorf("Unable to create request for todoist: %w", err)
+		return "", fmt.Errorf("Unable to create request for Todoist: %w", err)
 	}
 
 	// Set the API token as a header
@@ -62,26 +62,26 @@ func GetTodaysTasks(token string) (string, error) {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("Error while sending request to Todoist: %w", err)
 	}
 	defer resp.Body.Close()
 
 	// Check the response status code
 	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("unexpected response status code: %d", resp.StatusCode)
+		return "", fmt.Errorf("unexpected response status code from Todoist: %d", resp.StatusCode)
 	}
 
 	// Read the response body
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("Unable to read response data: %w", err)
 	}
 
 	// Unmarshal the JSON data
 	var tasks []map[string]interface{}
 	err = json.Unmarshal(body, &tasks)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("Unable to unmarshal response data: %w", err)
 	}
 
 	// Print the tasks
@@ -107,7 +107,7 @@ func GetCompletedTasks(token string) (string, error) {
 	var output string
 	req, err := http.NewRequest("GET", reqURL, nil)
 	if err != nil {
-		return "Cannot create request", err
+		return "", fmt.Errorf("Error creating request for completed tasks: %w", err)
 	}
 	q := req.URL.Query()
 	q.Add("since", today+"T00:00:00")
@@ -118,7 +118,7 @@ func GetCompletedTasks(token string) (string, error) {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return "400?", err
+		return "", fmt.Errorf("Error sending request to Todoist for completed tasks: %w", err)
 	}
 	defer resp.Body.Close()
 
@@ -130,14 +130,14 @@ func GetCompletedTasks(token string) (string, error) {
 	// Read the response body
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("Error reading repsonse data from Todoist for completed tasks: %w", err)
 	}
 
 	// Unmarshal the JSON data
 	var tasks map[string]interface{}
 	err = json.Unmarshal(body, &tasks)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("Error unmarshalling response data from Todoist for completed tasks: %w", err)
 	}
 	// Print the tasks
 
