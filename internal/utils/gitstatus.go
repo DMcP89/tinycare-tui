@@ -307,5 +307,9 @@ func getCommitsFromTimeRange(repoPath string, since time.Time, until time.Time) 
 
 func humanizeDuration(duration time.Duration) string {
 	hours := int(duration.Hours())
-	return fmt.Sprintf("[green]%d h(s) ago[white]", hours)
+	if hours >= 24 {
+		return fmt.Sprintf("[green]%d d(s) ago[white]", hours/24)
+	} else {
+		return fmt.Sprintf("[green]%d h(s) ago[white]", hours)
+	}
 }

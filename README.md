@@ -28,11 +28,11 @@ Set the following environment variables to configure Tinycare-tui
 - [x] Allow for local todo list for todays tasks
 - [x] Have task view show completed tasks as well
 - [x] Provide option to pull commits from github instead of from local repos
-- [ ] Add error handling for missing environment variables
+- [x] Add error handling for missing environment variables
 - [ ] Performance tuning
-- [ ] Logging
+- [x] Logging
 - [ ] Refactoring
-- [ ] Convert time on commits to days when >24 hours
+- [x] Convert time on commits to days when >24 hours
 - [ ] Refactor GitHub interactions to use go-hithub
 - [x] Write installation guide
 
