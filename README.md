@@ -11,7 +11,15 @@ go install github.com/DMcP89/tinycare-tui@latest
 ## Configurations
 Set the following environment variables to configure Tinycare-tui
 ```
+# API Keys
+GITHUB_TOKEN=123456789abcdefg # Set this variable to pull commits from Github instead of using local repositories
+OPEN_WEATHER_MAP_API_KEY=123456789abcdefg # Set this variable to get weather info from OpenWeatherMap.org
+TODOIST_TOKEN=123456789abcdefg  # Set this variable to pull todos from Todoist
 
+# Settings
+TINYCARE_POSTAL_CODE=123456 # Set this to the postal code that you want to pull weather info for
+TINYCARE_WORKSPACE=/path/to/directory/with/git/repos,/another/path/to/repos # Set this to tell the app where to look for git repos to pull commits from
+TODO_FILE=/path/to/todolist/file # Set this to tell the app where your local task list is
 ```
 
 
@@ -35,6 +43,7 @@ Set the following environment variables to configure Tinycare-tui
 - [x] Convert time on commits to days when >24 hours
 - [ ] Refactor GitHub interactions to use go-hithub
 - [x] Write installation guide
+- [x] Write configuration guide
 
 
 ## About
