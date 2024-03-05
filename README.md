@@ -46,6 +46,7 @@ TODO_FILE=/path/to/todolist/file # Set this to tell the app where your local tas
 - [ ] Refactor GitHub interactions to use go-hithub
 - [x] Write installation guide
 - [x] Write configuration guide
+- [x] Fix time display on commits to adjust to timezone
 
 
 ## About

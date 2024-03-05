@@ -172,7 +172,7 @@ func GetGitHubCommits(token string, lookBack int) (string, error) {
 				return "", fmt.Errorf("Unable to get events for user %s: %w", user, eventsErr)
 			}
 			totalEvents = append(totalEvents, events...)
-			if events[len(events)-1].CreatedAt.Before(lookBackTime) {
+			if events[len(events)-1].CreatedAt.In(time.Local).Before(lookBackTime) {
 				break
 			}
 		}
@@ -180,10 +180,10 @@ func GetGitHubCommits(token string, lookBack int) (string, error) {
 
 		var output string
 		for _, event := range totalEvents {
-			if len(event.Payload.Commits) > 0 && event.CreatedAt.After(lookBackTime) {
+			if len(event.Payload.Commits) > 0 && event.CreatedAt.In(time.Local).After(lookBackTime) {
 				output += fmt.Sprintf("[red]%s[white]\n", event.Repo.Name)
 				for _, commit := range event.Payload.Commits {
-					timeSinceCommit := time.Since(event.CreatedAt)
+					timeSinceCommit := time.Since(event.CreatedAt.In(time.Local))
 					formattedTimeSinceCommit := humanizeDuration(timeSinceCommit)
 					output += fmt.Sprintf("[yello]%s[white] (%s)\n", commit.Message, formattedTimeSinceCommit)
 				}
