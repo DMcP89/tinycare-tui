@@ -39,6 +39,7 @@ TODO_FILE=/path/to/todolist/file # Set this to tell the app where your local tas
 - [x] Have task view show completed tasks as well
 - [x] Provide option to pull commits from github instead of from local repos
 - [x] Add error handling for missing environment variables
+- [ ] Create tests
 - [ ] Performance tuning
 - [x] Logging
 - [ ] Refactoring
