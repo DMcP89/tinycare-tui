@@ -41,6 +41,7 @@ TODO_FILE=/path/to/todolist/file # Set this to tell the app where your local tas
 - [x] Add error handling for missing environment variables
 - [ ] Create tests
 - [ ] Performance tuning
+    - [ ] Refactor pulling commits from local repos to use goroutines and channels
 - [x] Logging
 - [ ] Refactoring
 - [x] Convert time on commits to days when >24 hours
