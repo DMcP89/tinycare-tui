@@ -41,11 +41,12 @@ TODO_FILE=/path/to/todolist/file # Set this to tell the app where your local tas
 - [x] Add error handling for missing environment variables
 - [ ] Create tests
 - [ ] Performance tuning
-    - [ ] Refactor pulling commits from local repos to use goroutines and channels
+    - [ ] pulling commits from local repos to use goroutines and channels
 - [x] Logging
 - [ ] Refactoring
+    - [ ] Only pull user and events from Github once
+    - [ ] Refactor GitHub interactions to use go-github
 - [x] Convert time on commits to days when >24 hours
-- [ ] Refactor GitHub interactions to use go-hithub
 - [x] Write installation guide
 - [x] Write configuration guide
 - [x] Fix time display on commits to adjust to timezone

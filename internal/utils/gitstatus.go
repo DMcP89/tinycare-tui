@@ -132,8 +132,8 @@ func GetGitHubUser(token string) (string, error) {
 	return user["login"].(string), err
 }
 
-func GetGitHubEvents(token string, login string) ([]Event, error) {
-	eventsEndpoint := fmt.Sprintf("/users/%s/events?per_page=10", login)
+func GetGitHubEvents(token string, login string, page int) ([]Event, error) {
+	eventsEndpoint := fmt.Sprintf("/users/%s/events?per_page=100&page=%d", login, page)
 
 	req, err := http.NewRequest("GET", reqUrl+eventsEndpoint, nil)
 
@@ -156,6 +156,7 @@ func GetGitHubEvents(token string, login string) ([]Event, error) {
 }
 
 func GetGitHubCommits(token string, lookBack int) (string, error) {
+
 	if token != "" {
 		user, userErr := GetGitHubUser(token)
 		if userErr != nil {
@@ -164,19 +165,19 @@ func GetGitHubCommits(token string, lookBack int) (string, error) {
 		var totalEvents []Event
 
 		lookBackTime := time.Now().AddDate(0, 0, lookBack)
-		//		aDayAgo =  time.Now().AddDate(0, 0, -1)
-
+		page := 1
 		for {
-			events, eventsErr := GetGitHubEvents(token, user)
+			events, eventsErr := GetGitHubEvents(token, user, page)
+
 			if eventsErr != nil {
 				return "", fmt.Errorf("Unable to get events for user %s: %w", user, eventsErr)
 			}
 			totalEvents = append(totalEvents, events...)
-			if events[len(events)-1].CreatedAt.In(time.Local).Before(lookBackTime) {
+			page++
+			if events[len(events)-1].CreatedAt.Before(lookBackTime) {
 				break
 			}
 		}
-		// if events
 
 		var output string
 		for _, event := range totalEvents {
