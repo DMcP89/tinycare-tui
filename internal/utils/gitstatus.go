@@ -247,25 +247,32 @@ func GetWeeklyCommits(path string) (string, error) {
 	return result, nil
 }
 
-func findGitRepositories(path string) ([]string, error) {
-	var repositories []string
-	//split the path into a slice of strings by comma
-
-	paths := strings.Split(path, ",")
+func getRepos(paths []string, c chan string, e chan error) {
 	for _, path := range paths {
 		err := filepath.Walk(path, func(p string, info os.FileInfo, err error) error {
 			if err != nil {
 				return err
 			}
 			if info.IsDir() && info.Name() == ".git" {
-				repositories = append(repositories, filepath.Dir(p))
+				//repositories = append(repositories, filepath.Dir(p))
+				c <- filepath.Dir(p)
 			}
 			return nil
 		})
 		if err != nil {
-			return nil, err
+			e <- err
 		}
 	}
+}
+
+func findGitRepositories(path string) ([]string, error) {
+	var repositories []string
+	//split the path into a slice of strings by comma
+	repo_channel := make(chan string)
+	error_channel := make(chan error)
+	paths := strings.Split(path, ",")
+	go getRepos(paths, repo_channel, error_channel)
+	repositories = append(repositories, <-repo_channel)
 	return repositories, nil
 }
 
