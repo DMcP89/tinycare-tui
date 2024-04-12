@@ -247,7 +247,7 @@ func GetWeeklyCommits(path string) (string, error) {
 	return result, nil
 }
 
-func getRepos(paths []string, c chan string, e chan error) {
+func getRepos(paths []string, c chan string, e chan error, q chan int) {
 	for _, path := range paths {
 		err := filepath.Walk(path, func(p string, info os.FileInfo, err error) error {
 			if err != nil {
@@ -263,6 +263,7 @@ func getRepos(paths []string, c chan string, e chan error) {
 			e <- err
 		}
 	}
+	q <- 0
 }
 
 func findGitRepositories(path string) ([]string, error) {
@@ -270,10 +271,19 @@ func findGitRepositories(path string) ([]string, error) {
 	//split the path into a slice of strings by comma
 	repo_channel := make(chan string)
 	error_channel := make(chan error)
+	quit_channel := make(chan int)
 	paths := strings.Split(path, ",")
-	go getRepos(paths, repo_channel, error_channel)
-	repositories = append(repositories, <-repo_channel)
-	return repositories, nil
+	go getRepos(paths, repo_channel, error_channel, quit_channel)
+	for {
+		select {
+		case repo := <-repo_channel:
+			repositories = append(repositories, repo)
+		case err := <-error_channel:
+			return nil, err
+		case <-quit_channel:
+			return repositories, nil
+		}
+	}
 }
 
 func getCommitsFromTimeRange(repoPath string, since time.Time, until time.Time) (string, error) {
