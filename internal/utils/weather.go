@@ -19,6 +19,11 @@ func GetWeather(postal_code string) (string, error) {
 			return weather, fmt.Errorf("Unable to retrieve weather data from openweathermap.org: %w", err)
 		}
 		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusOK {
+			return "", fmt.Errorf("unexpected response status code from OpenWeather API: %d", resp.StatusCode)
+		}
+
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
 			return weather, fmt.Errorf("Error reading response from openweathermap.org: %w", err)
