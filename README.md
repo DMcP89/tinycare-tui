@@ -51,6 +51,7 @@ TODO_FILE=/path/to/todolist/file # Set this to tell the app where your local tas
 - [x] Write configuration guide
 - [x] Fix time display on commits to adjust to timezone
 - [ ] Update github integration to include events from user's orgs
+- [ ] Move environment variable handling out of util modules
 
 
 ## About
