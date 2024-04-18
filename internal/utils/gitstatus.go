@@ -31,6 +31,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/go-git/go-git/v5"
@@ -248,21 +249,26 @@ func GetWeeklyCommits(path string) (string, error) {
 }
 
 func getRepos(paths []string, c chan string, e chan error, q chan int) {
+	var wg sync.WaitGroup
+	wg.Add(len(paths))
 	for _, path := range paths {
-		err := filepath.Walk(path, func(p string, info os.FileInfo, err error) error {
+		go func(path string) {
+			err := filepath.Walk(path, func(p string, info os.FileInfo, err error) error {
+				if err != nil {
+					return err
+				}
+				if info.IsDir() && info.Name() == ".git" {
+					c <- filepath.Dir(p)
+				}
+				return nil
+			})
 			if err != nil {
-				return err
+				e <- err
 			}
-			if info.IsDir() && info.Name() == ".git" {
-				//repositories = append(repositories, filepath.Dir(p))
-				c <- filepath.Dir(p)
-			}
-			return nil
-		})
-		if err != nil {
-			e <- err
-		}
+			wg.Done()
+		}(path)
 	}
+	wg.Wait()
 	q <- 0
 }
 
