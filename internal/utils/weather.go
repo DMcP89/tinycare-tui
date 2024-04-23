@@ -8,13 +8,15 @@ import (
 	"os"
 )
 
+var weather_url = "https://api.openweathermap.org/data/2.5/weather?zip=%s&APPID=%s&units=imperial"
+
 // GetWeather will retrieve the current weather for a given postal code via OpenWeatherMap using its API
 // https://api.openweathermap.org/data/2.5/weather?q=07070&APPID=[API KEY]
 func GetWeather(postal_code string) (string, error) {
 	if api_key, ok := os.LookupEnv("OPEN_WEATHER_MAP_API_KEY"); ok {
 		weather := ""
-		weather_url := "https://api.openweathermap.org/data/2.5/weather?zip=" + postal_code + "&APPID=" + api_key + "&units=imperial"
-		resp, err := http.Get(weather_url)
+		//		weather_url := "https://api.openweathermap.org/data/2.5/weather?zip=" + postal_code + "&APPID=" + api_key + "&units=imperial"
+		resp, err := http.Get(fmt.Sprintf(weather_url, postal_code, api_key))
 		if err != nil {
 			return weather, fmt.Errorf("Unable to retrieve weather data from openweathermap.org: %w", err)
 		}

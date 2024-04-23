@@ -1,9 +1,33 @@
 package utils
 
-import "testing"
+import (
+	"fmt"
+	"os"
+	"testing"
+
+	"github.com/h2non/gock"
+)
+
+var api_key string
+
+func init() {
+	api_key, ok := os.LookupEnv("OPEN_WEATHER_MAP_API_KEY")
+	if !ok {
+		api_key = "TESTAPIKEY"
+		os.Setenv("OPEN_WEATHER_MAP_API_KEY", api_key)
+	}
+}
 
 func TestValidZipCode(t *testing.T) {
-	_, err := GetWeather("07070")
+	defer gock.Off()
+	postal_code := "10005"
+	gock.New(fmt.Sprintf(weather_url, postal_code, api_key)).
+		Get("/").
+		Reply(200).
+		//		JSON(map[string]string{"foo": "bar"})
+		File("testdata/weather.json")
+
+	_, err := GetWeather(postal_code)
 	if err != nil {
 		t.Error(err)
 	}
