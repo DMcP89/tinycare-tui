@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-const advices = []string{
+var advices = []string{
 	"Don't forget to drink enough water!",
 	"Have you gotten outside today?",
 	"Take a break and do something you enjoy.",
@@ -17,7 +17,7 @@ const advices = []string{
 	"Spend time with loved ones or friends.",
 }
 
-const emoji = []string{
+var emoji = []string{
 	"ᕕ(⌐■_■)ᕗ ♪♬",
 	"༼ つ ◕_◕ ༽つ",
 	"(◕ᴥ◕ʋ)",
