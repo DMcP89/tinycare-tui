@@ -5,10 +5,19 @@ inspired by @notwaldorf [tiny-care-terminal](https://github.com/notwaldorf/tiny-
 
 ![screenshot](image.png)
 
+
+## About
+I started this project to accomplish a few different goals
+1. Teach myself the basics of the Go language
+2. Practice leveraging generative AI tools like copilot and chatgpt for development
+3. Create a fun terminal app
+
+
 ## Installation
 ```
 go install github.com/DMcP89/tinycare-tui@latest
 ```
+
 
 ## Configurations
 Set the following environment variables to configure Tinycare-tui
@@ -23,7 +32,6 @@ TINYCARE_POSTAL_CODE=123456 # Set this to the postal code that you want to pull 
 TINYCARE_WORKSPACE=/path/to/directory/with/git/repos,/another/path/to/repos # Set this to tell the app where to look for git repos to pull commits from
 TODO_FILE=/path/to/todolist/file # Set this to tell the app where your local task list is
 ```
-
 
 ## TO-DOs
 - [x] Allow for focusing on each box
@@ -55,8 +63,5 @@ TODO_FILE=/path/to/todolist/file # Set this to tell the app where your local tas
 - [ ] Update github integration to include events from user's orgs
 
 
-## About
-I started this project to accomplish a few different goals
-1. Teach myself the basics of the Go language
-2. Practice leveraging generative AI tools like copilot and chatgpt for development
-3. Create a fun terminal app
+## Contributions
+This is primarily a learning project for me so I will be working on it on and off but Issues and PRs are most welcome.
