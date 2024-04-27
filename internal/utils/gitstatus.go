@@ -186,7 +186,7 @@ func GetGitHubCommits(token string, lookBack int) (string, error) {
 				output += fmt.Sprintf("[red]%s[white]\n", event.Repo.Name)
 				for _, commit := range event.Payload.Commits {
 					timeSinceCommit := time.Since(event.CreatedAt.In(time.Local))
-					formattedTimeSinceCommit := humanizeDuration(timeSinceCommit)
+					formattedTimeSinceCommit := HumanizeDuration(timeSinceCommit)
 					output += fmt.Sprintf("[yello]%s[white] (%s)\n", commit.Message, formattedTimeSinceCommit)
 				}
 			}
@@ -202,14 +202,14 @@ func GetDailyCommits(path string) (string, error) {
 	if path == "" {
 		return "TINYCARE_WORKSPACE environment variable not set!", nil
 	}
-	repositories, err := findGitRepositories(path)
+	repositories, err := FindGitRepositories(path)
 	if err != nil {
 		return "", fmt.Errorf("GetDailyCommits: Unable to find git repos for %s: %w", path, err)
 	}
 
 	result := ""
 	for _, repo := range repositories {
-		commitMessages, err := getCommitsFromTimeRange(repo, time.Now().AddDate(0, 0, -1), time.Now())
+		commitMessages, err := GetCommitsFromTimeRange(repo, time.Now().AddDate(0, 0, -1), time.Now())
 		if err != nil {
 			return "", err
 		}
@@ -227,14 +227,14 @@ func GetWeeklyCommits(path string) (string, error) {
 	if path == "" {
 		return "TINYCARE_WORKSPACE environment variable not set!", nil
 	}
-	repositories, err := findGitRepositories(path)
+	repositories, err := FindGitRepositories(path)
 	if err != nil {
 		return "", err
 	}
 
 	result := ""
 	for _, repo := range repositories {
-		commitMessages, err := getCommitsFromTimeRange(repo, time.Now().AddDate(0, 0, -7), time.Now())
+		commitMessages, err := GetCommitsFromTimeRange(repo, time.Now().AddDate(0, 0, -7), time.Now())
 		if err != nil {
 			return "", err
 		}
@@ -248,7 +248,7 @@ func GetWeeklyCommits(path string) (string, error) {
 	return result, nil
 }
 
-func getRepos(paths []string, c chan string, e chan error, q chan int) {
+func GetRepos(paths []string, c chan string, e chan error, q chan int) {
 	var wg sync.WaitGroup
 	wg.Add(len(paths))
 	for _, path := range paths {
@@ -272,14 +272,14 @@ func getRepos(paths []string, c chan string, e chan error, q chan int) {
 	q <- 0
 }
 
-func findGitRepositories(path string) ([]string, error) {
+func FindGitRepositories(path string) ([]string, error) {
 	var repositories []string
 	//split the path into a slice of strings by comma
 	repo_channel := make(chan string)
 	error_channel := make(chan error)
 	quit_channel := make(chan int)
 	paths := strings.Split(path, ",")
-	go getRepos(paths, repo_channel, error_channel, quit_channel)
+	go GetRepos(paths, repo_channel, error_channel, quit_channel)
 	for {
 		select {
 		case repo := <-repo_channel:
@@ -292,7 +292,7 @@ func findGitRepositories(path string) ([]string, error) {
 	}
 }
 
-func getCommitsFromTimeRange(repoPath string, since time.Time, until time.Time) (string, error) {
+func GetCommitsFromTimeRange(repoPath string, since time.Time, until time.Time) (string, error) {
 	repo, err := git.PlainOpen(repoPath)
 	if err != nil {
 		return "", err
@@ -315,7 +315,7 @@ func getCommitsFromTimeRange(repoPath string, since time.Time, until time.Time) 
 	err = commitIter.ForEach(func(commit *object.Commit) error {
 		if commit.Committer.When.After(since) && commit.Committer.When.Before(until) {
 			timeSinceCommit := time.Since(commit.Committer.When)
-			formattedTimeSinceCommit := humanizeDuration(timeSinceCommit)
+			formattedTimeSinceCommit := HumanizeDuration(timeSinceCommit)
 
 			commitMessages += fmt.Sprintf("[yellow]%s[white] - %s (%s)\n", commit.Hash.String()[:7], strings.TrimSuffix(commit.Message, "\n"), formattedTimeSinceCommit)
 		}
@@ -329,7 +329,7 @@ func getCommitsFromTimeRange(repoPath string, since time.Time, until time.Time) 
 	return commitMessages, nil
 }
 
-func humanizeDuration(duration time.Duration) string {
+func HumanizeDuration(duration time.Duration) string {
 	hours := int(duration.Hours())
 	if hours >= 24 {
 		return fmt.Sprintf("[green]%d d(s) ago[white]", hours/24)
