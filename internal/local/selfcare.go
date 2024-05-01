@@ -1,5 +1,5 @@
 // ChatGPT Prompts https://chat.openai.com/share/fd3771d8-0bde-460d-bb52-4300a81cdb50
-package utils
+package local
 
 import (
 	"fmt"

@@ -5,6 +5,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/DMcP89/tinycare-tui/internal/local"
 	"github.com/DMcP89/tinycare-tui/internal/utils"
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
@@ -82,10 +83,16 @@ func main() {
 
 	refresh := func() {
 		go RefreshText(app, selfCareView, func() (string, error) {
-			return utils.GetSelfCareAdvice(), nil
+			return local.GetSelfCareAdvice(), nil
 		})
 		go RefreshText(app, tasksView, func() (string, error) {
-			result, err := utils.GetTasks()
+			var result string
+			var err error
+			if token, ok := os.LookupEnv("TODOIST_TOKEN"); ok {
+				result, err = utils.GetTodaysTasks(token)
+			} else {
+				result, err = local.GetLocalTasks()
+			}
 			if err != nil {
 				return err.Error(), nil
 			}
