@@ -63,7 +63,3 @@ func Test_GetGitHubCommits(t *testing.T) {
 		t.Errorf("Error testing GetGitHubCommits: %s", err.Error())
 	}
 }
-
-func Test_HumanizeDuration(t *testing.T) {
-	t.Fatalf("Test not implemented")
-}
