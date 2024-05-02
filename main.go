@@ -5,8 +5,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/DMcP89/tinycare-tui/internal/apis"
 	"github.com/DMcP89/tinycare-tui/internal/local"
-	"github.com/DMcP89/tinycare-tui/internal/utils"
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
@@ -89,7 +89,7 @@ func main() {
 			var result string
 			var err error
 			if token, ok := os.LookupEnv("TODOIST_TOKEN"); ok {
-				result, err = utils.GetTodaysTasks(token)
+				result, err = apis.GetTodaysTasks(token)
 			} else {
 				result, err = local.GetLocalTasks()
 			}
@@ -100,7 +100,7 @@ func main() {
 		})
 		go RefreshText(app, weatherView, func() (string, error) {
 			if POSTAL_CODE, ok := os.LookupEnv("TINYCARE_POSTAL_CODE"); ok {
-				result, err := utils.GetWeather(POSTAL_CODE)
+				result, err := apis.GetWeather(POSTAL_CODE)
 				if err != nil {
 					return err.Error(), nil
 				}
@@ -111,14 +111,14 @@ func main() {
 		})
 		go RefreshText(app, weeklyView, func() (string, error) {
 			if token, ok := os.LookupEnv("GITHUB_TOKEN"); ok {
-				result, err := utils.GetGitHubCommits(token, -7)
+				result, err := apis.GetGitHubCommits(token, -7)
 				if err != nil {
 					return err.Error(), nil
 				}
 				return result, err
 			} else {
 				if TINYCARE_WORKSPACE, ok := os.LookupEnv("TINYCARE_WORKSPACE"); ok {
-					result, err := utils.GetWeeklyCommits(TINYCARE_WORKSPACE)
+					result, err := local.GetWeeklyCommits(TINYCARE_WORKSPACE)
 					if err != nil {
 						return err.Error(), nil
 					}
@@ -130,14 +130,14 @@ func main() {
 		})
 		go RefreshText(app, dailyView, func() (string, error) {
 			if token, ok := os.LookupEnv("GITHUB_TOKEN"); ok {
-				result, err := utils.GetGitHubCommits(token, -1)
+				result, err := apis.GetGitHubCommits(token, -1)
 				if err != nil {
 					return err.Error(), nil
 				}
 				return result, err
 			} else {
 				if TINYCARE_WORKSPACE, ok := os.LookupEnv("TINYCARE_WORKSPACE"); ok {
-					result, err := utils.GetDailyCommits(TINYCARE_WORKSPACE)
+					result, err := local.GetDailyCommits(TINYCARE_WORKSPACE)
 					if err != nil {
 						return err.Error(), nil
 					}

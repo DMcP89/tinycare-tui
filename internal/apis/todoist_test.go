@@ -1,19 +1,10 @@
-package utils
+package apis
 
 import (
-	"os"
 	"testing"
 
 	"github.com/h2non/gock"
 )
-
-func TestGetLocalTasks(t *testing.T) {
-	os.Setenv("TODO_FILE", "testdata/sample_todo.txt")
-	_, err := GetLocalTasks()
-	if err != nil {
-		t.Fatalf("Error processing sample_todo.txt")
-	}
-}
 
 func TestGetTodaysTasks(t *testing.T) {
 	defer gock.Off()
