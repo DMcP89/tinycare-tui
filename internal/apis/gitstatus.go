@@ -29,6 +29,8 @@ import (
 	"io"
 	"net/http"
 	"time"
+
+	"github.com/DMcP89/tinycare-tui/internal/utils"
 )
 
 // Actor represents the actor in the JSON structure.
@@ -179,7 +181,7 @@ func GetGitHubCommits(token string, lookBack int) (string, error) {
 				output += fmt.Sprintf("[red]%s[white]\n", event.Repo.Name)
 				for _, commit := range event.Payload.Commits {
 					timeSinceCommit := time.Since(event.CreatedAt.In(time.Local))
-					formattedTimeSinceCommit := HumanizeDuration(timeSinceCommit)
+					formattedTimeSinceCommit := utils.HumanizeDuration(timeSinceCommit)
 					output += fmt.Sprintf("[yello]%s[white] (%s)\n", commit.Message, formattedTimeSinceCommit)
 				}
 			}
@@ -188,14 +190,5 @@ func GetGitHubCommits(token string, lookBack int) (string, error) {
 
 	} else {
 		return "GITHUB_TOKEN environment variable not set correctly", nil
-	}
-}
-
-func HumanizeDuration(duration time.Duration) string {
-	hours := int(duration.Hours())
-	if hours >= 24 {
-		return fmt.Sprintf("[green]%d d(s) ago[white]", hours/24)
-	} else {
-		return fmt.Sprintf("[green]%d h(s) ago[white]", hours)
 	}
 }

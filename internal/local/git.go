@@ -8,6 +8,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/DMcP89/tinycare-tui/internal/utils"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/object"
 )
@@ -129,7 +130,7 @@ func GetCommitsFromTimeRange(repoPath string, since time.Time, until time.Time) 
 	err = commitIter.ForEach(func(commit *object.Commit) error {
 		if commit.Committer.When.After(since) && commit.Committer.When.Before(until) {
 			timeSinceCommit := time.Since(commit.Committer.When)
-			formattedTimeSinceCommit := HumanizeDuration(timeSinceCommit)
+			formattedTimeSinceCommit := utils.HumanizeDuration(timeSinceCommit)
 
 			commitMessages += fmt.Sprintf("[yellow]%s[white] - %s (%s)\n", commit.Hash.String()[:7], strings.TrimSuffix(commit.Message, "\n"), formattedTimeSinceCommit)
 		}
@@ -141,13 +142,4 @@ func GetCommitsFromTimeRange(repoPath string, since time.Time, until time.Time) 
 	}
 
 	return commitMessages, nil
-}
-
-func HumanizeDuration(duration time.Duration) string {
-	hours := int(duration.Hours())
-	if hours >= 24 {
-		return fmt.Sprintf("[green]%d d(s) ago[white]", hours/24)
-	} else {
-		return fmt.Sprintf("[green]%d h(s) ago[white]", hours)
-	}
 }
