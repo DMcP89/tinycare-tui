@@ -5,10 +5,19 @@ inspired by @notwaldorf [tiny-care-terminal](https://github.com/notwaldorf/tiny-
 
 ![screenshot](image.png)
 
+
+## About
+I started this project to accomplish a few different goals
+1. Teach myself the basics of the Go language
+2. Practice leveraging generative AI tools like copilot and chatgpt for development
+3. Create a fun terminal app
+
+
 ## Installation
 ```
 go install github.com/DMcP89/tinycare-tui@latest
 ```
+
 
 ## Configurations
 Set the following environment variables to configure Tinycare-tui
@@ -24,7 +33,6 @@ TINYCARE_WORKSPACE=/path/to/directory/with/git/repos,/another/path/to/repos # Se
 TODO_FILE=/path/to/todolist/file # Set this to tell the app where your local task list is
 ```
 
-
 ## TO-DOs
 - [x] Allow for focusing on each box
 - [x] Expand on self care reminders
@@ -39,13 +47,16 @@ TODO_FILE=/path/to/todolist/file # Set this to tell the app where your local tas
 - [x] Have task view show completed tasks as well
 - [x] Provide option to pull commits from github instead of from local repos
 - [x] Add error handling for missing environment variables
-- [ ] Create tests
+- [x] Create tests
 - [ ] Performance tuning
     - [ ] pulling commits from local repos to use goroutines and channels
+    - [ ] Rework refresh function to leverage text view's SetChangeFunc()
 - [x] Logging
 - [ ] Refactoring
     - [ ] Only pull user and events from Github once
     - [ ] Refactor GitHub interactions to use go-github
+    - [ ] Move environment variable handling out of util modules
+    - [ ] Refactor tests to leverage cases
 - [x] Convert time on commits to days when >24 hours
 - [x] Write installation guide
 - [x] Write configuration guide
@@ -53,8 +64,5 @@ TODO_FILE=/path/to/todolist/file # Set this to tell the app where your local tas
 - [ ] Update github integration to include events from user's orgs
 
 
-## About
-I started this project to accomplish a few different goals
-1. Teach myself the basics of the Go language
-2. Practice leveraging generative AI tools like copilot and chatgpt for development
-3. Create a fun terminal app
+## Contributions
+This is primarily a learning project for me so I will be working on it on and off but Issues and PRs are most welcome.
