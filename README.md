@@ -50,7 +50,7 @@ TODO_FILE=/path/to/todolist/file # Set this to tell the app where your local tas
 - [x] Create tests
 - [ ] Performance tuning
     - [ ] pulling commits from local repos to use goroutines and channels
-    - [ ] Rework refresh function to leverage text view's SetChangeFunc()
+    - [x] Rework refresh function to leverage text view's SetChangeFunc()
 - [x] Logging
 - [ ] Refactoring
     - [ ] Only pull user and events from Github once
