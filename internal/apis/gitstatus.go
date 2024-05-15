@@ -26,7 +26,6 @@ package apis
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"time"
 
@@ -90,23 +89,6 @@ type Event struct {
 
 const reqUrl = "https://api.github.com"
 
-func SendRequest(req *http.Request) ([]byte, error) {
-	// Send HTTP request
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	// Check the response status code
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("unexpected response status code: %d", resp.StatusCode)
-	}
-
-	// Read the response body
-	return io.ReadAll(resp.Body)
-}
-
 func GetGitHubUser(token string) (string, error) {
 	userEndpoint := "/user"
 	// get the username of the authenticated user
@@ -118,7 +100,7 @@ func GetGitHubUser(token string) (string, error) {
 	// Set the API token as a header
 	req.Header.Set("Authorization", "Bearer "+token)
 
-	body, err := SendRequest(req)
+	body, err := utils.SendRequest(req)
 	if err != nil {
 		return "", err
 	}
@@ -139,7 +121,7 @@ func GetGitHubEvents(token string, login string, page int) ([]Event, error) {
 	// Set the API token as a header
 	req.Header.Set("Authorization", "Bearer "+token)
 
-	body, err := SendRequest(req)
+	body, err := utils.SendRequest(req)
 	if err != nil {
 		return nil, err
 	}

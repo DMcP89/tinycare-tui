@@ -32,20 +32,9 @@ func NewTabTextView(next *TabTextView) *TabTextView {
 	}
 }
 
-func RefreshText(app *tview.Application, view *TabTextView, textFunc func() (string, error)) {
-	app.QueueUpdateDraw(func() {
-		text, err := textFunc()
-		if err != nil {
-			handleRefreshError(err)
-			return
-		}
-		view.SetText(text)
-	})
-}
-
 func main() {
 	app := tview.NewApplication()
-
+	changeFunc := func() { app.Draw() }
 	newTabTextView := func(text string, textAlignment int, next *TabTextView) *TabTextView {
 		view := NewTabTextView(next)
 		view.SetText(text).
@@ -57,18 +46,23 @@ func main() {
 	tasksView := newTabTextView("", tview.AlignLeft, nil)
 	tasksView.SetWordWrap(true).SetWrap(true)
 	tasksView.SetBorder(true).SetTitle("Today's Tasks 📋")
+	tasksView.SetChangedFunc(changeFunc)
 
 	selfCareView := newTabTextView("", tview.AlignCenter, tasksView)
 	selfCareView.SetBorder(true).SetTitle("Self Care 😁")
+	selfCareView.SetChangedFunc(changeFunc)
 
 	weatherView := newTabTextView("", tview.AlignCenter, selfCareView)
 	weatherView.SetBorder(true).SetTitle("Weather ⛅")
+	weatherView.SetChangedFunc(changeFunc)
 
 	weeklyView := newTabTextView("", tview.AlignLeft, weatherView)
 	weeklyView.SetBorder(true).SetTitle("Weekly Commits 📦")
+	weeklyView.SetChangedFunc(changeFunc)
 
 	dailyView := newTabTextView("", tview.AlignLeft, weeklyView)
 	dailyView.SetBorder(true).SetTitle("Daily Commits 📦")
+	dailyView.SetChangedFunc(changeFunc)
 
 	tasksView.SetNext(dailyView)
 
@@ -80,79 +74,86 @@ func main() {
 			AddItem(weatherView, 0, 2, false).
 			AddItem(selfCareView, 0, 1, false).
 			AddItem(tasksView, 0, 4, false), 0, 1, false)
-
 	refresh := func() {
-		go RefreshText(app, selfCareView, func() (string, error) {
-			return local.GetSelfCareAdvice(), nil
-		})
-		go RefreshText(app, tasksView, func() (string, error) {
+		go func() {
+			advice := local.GetSelfCareAdvice()
+			selfCareView.SetText(advice)
+		}()
+
+		go func() {
 			var result string
 			var err error
 			if token, ok := os.LookupEnv("TODOIST_TOKEN"); ok {
 				result, err = apis.GetTodaysTasks(token)
 			} else {
-				result, err = local.GetLocalTasks()
+				if todoFile, ok := os.LookupEnv("TODO_FILE"); ok {
+					result, err = local.GetLocalTasks(todoFile)
+				} else {
+					tasksView.SetText("Please set either the TODOIST_TOKEN or TODO_FILE environment variable")
+				}
 			}
 			if err != nil {
-				return err.Error(), nil
+				tasksView.SetText(err.Error())
 			}
-			return result, err
-		})
-		go RefreshText(app, weatherView, func() (string, error) {
+			tasksView.SetText(result)
+		}()
+
+		go func() {
 			if POSTAL_CODE, ok := os.LookupEnv("TINYCARE_POSTAL_CODE"); ok {
 				result, err := apis.GetWeather(POSTAL_CODE)
 				if err != nil {
-					return err.Error(), nil
+					weatherView.SetText(err.Error())
 				}
-				return result, err
+				weatherView.SetText(result)
 			} else {
-				return "Please set TINYCARE_POSTAL_CODE environment variable", nil
+				weatherView.SetText("Please set TINYCARE_POSTAL_CODE environment variable")
 			}
-		})
-		go RefreshText(app, weeklyView, func() (string, error) {
+		}()
+
+		go func() {
 			if token, ok := os.LookupEnv("GITHUB_TOKEN"); ok {
 				result, err := apis.GetGitHubCommits(token, -7)
 				if err != nil {
-					return err.Error(), nil
+					weeklyView.SetText(err.Error())
 				}
-				return result, err
+				weeklyView.SetText(result)
 			} else {
 				if TINYCARE_WORKSPACE, ok := os.LookupEnv("TINYCARE_WORKSPACE"); ok {
 					result, err := local.GetWeeklyCommits(TINYCARE_WORKSPACE)
 					if err != nil {
-						return err.Error(), nil
+						weeklyView.SetText(err.Error())
 					}
-					return result, err
+					weeklyView.SetText(result)
 				} else {
-					return "Please set either the TINYCARE_WORKSPACE or GITHUB_TOKEN environment variables to retrive commits", nil
+					weeklyView.SetText("Please set either the TINYCARE_WORKSPACE or GITHUB_TOKEN environment variables to retrive commits")
 				}
 			}
-		})
-		go RefreshText(app, dailyView, func() (string, error) {
+		}()
+		go func() {
 			if token, ok := os.LookupEnv("GITHUB_TOKEN"); ok {
 				result, err := apis.GetGitHubCommits(token, -1)
 				if err != nil {
-					return err.Error(), nil
+					dailyView.SetText(err.Error())
 				}
-				return result, err
+				dailyView.SetText(result)
 			} else {
 				if TINYCARE_WORKSPACE, ok := os.LookupEnv("TINYCARE_WORKSPACE"); ok {
 					result, err := local.GetDailyCommits(TINYCARE_WORKSPACE)
 					if err != nil {
-						return err.Error(), nil
+						dailyView.SetText(err.Error())
 					}
-					return result, err
+					dailyView.SetText(result)
 				} else {
-					return "Please set either the TINYCARE_WORKSPACE or GITHUB_TOKEN environment variables to retrive commits", nil
+					dailyView.SetText("Please set either the TINYCARE_WORKSPACE or GITHUB_TOKEN environment variables to retrive commits")
 				}
 			}
-		})
+		}()
 	}
 
 	go func() {
 		for {
 			refresh()
-			time.Sleep(30 * time.Second)
+			time.Sleep(300 * time.Second)
 		}
 	}()
 
