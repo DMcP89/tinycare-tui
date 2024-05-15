@@ -93,7 +93,11 @@ func main() {
 			if token, ok := os.LookupEnv("TODOIST_TOKEN"); ok {
 				result, err = apis.GetTodaysTasks(token)
 			} else {
-				result, err = local.GetLocalTasks()
+				if todoFile, ok := os.LookupEnv("TODO_FILE"); ok {
+					result, err = local.GetLocalTasks(todoFile)
+				} else {
+					return "Please set either the TODOIST_TOKEN or TODO_FILE environment variable", nil
+				}
 			}
 			if err != nil {
 				return err.Error(), nil
