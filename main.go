@@ -60,7 +60,9 @@ func main() {
 
 	selfCareView := newTabTextView("", tview.AlignCenter, tasksView)
 	selfCareView.SetBorder(true).SetTitle("Self Care 😁")
-
+	selfCareView.SetChangedFunc(func() {
+		app.Draw()
+	})
 	weatherView := newTabTextView("", tview.AlignCenter, selfCareView)
 	weatherView.SetBorder(true).SetTitle("Weather ⛅")
 
@@ -80,11 +82,11 @@ func main() {
 			AddItem(weatherView, 0, 2, false).
 			AddItem(selfCareView, 0, 1, false).
 			AddItem(tasksView, 0, 4, false), 0, 1, false)
-
 	refresh := func() {
-		go RefreshText(app, selfCareView, func() (string, error) {
-			return local.GetSelfCareAdvice(), nil
-		})
+		go func() {
+			advice := local.GetSelfCareAdvice()
+			selfCareView.SetText(advice)
+		}()
 		go RefreshText(app, tasksView, func() (string, error) {
 			var result string
 			var err error
