@@ -1,13 +1,11 @@
 package local
 
 import (
-	"os"
 	"testing"
 )
 
 func TestGetLocalTasks(t *testing.T) {
-	os.Setenv("TODO_FILE", "testdata/sample_todo.txt")
-	_, err := GetLocalTasks()
+	_, err := GetLocalTasks("testdata/sample_todo.txt")
 	if err != nil {
 		t.Fatalf("Error processing sample_todo.txt")
 	}
