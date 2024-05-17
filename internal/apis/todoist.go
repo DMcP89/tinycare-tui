@@ -3,10 +3,11 @@ package apis
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/DMcP89/tinycare-tui/internal/utils"
 )
 
 // GetTodaysTasks will retrieve the tasks for today by querying the Todoist API.
@@ -21,21 +22,8 @@ func GetTodaysTasks(token string) (string, error) {
 	// Set the API token as a header
 	req.Header.Set("Authorization", "Bearer "+token)
 
-	// Send HTTP request
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return "", fmt.Errorf("Error while sending request to Todoist: %w", err)
-	}
-	defer resp.Body.Close()
-
-	// Check the response status code
-	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("unexpected response status code from Todoist: %d", resp.StatusCode)
-	}
-
 	// Read the response body
-	body, err := io.ReadAll(resp.Body)
+	body, err := utils.SendRequest(req)
 	if err != nil {
 		return "", fmt.Errorf("Unable to read response data: %w", err)
 	}
@@ -78,20 +66,9 @@ func GetCompletedTasks(token string) (string, error) {
 
 	// Set the API token as a header
 	req.Header.Set("Authorization", "Bearer "+token)
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return "", fmt.Errorf("Error sending request to Todoist for completed tasks: %w", err)
-	}
-	defer resp.Body.Close()
-
-	// Check the response status code
-	if resp.StatusCode != http.StatusOK {
-		return output, fmt.Errorf("unexpected response status code: %d", resp.StatusCode)
-	}
 
 	// Read the response body
-	body, err := io.ReadAll(resp.Body)
+	body, err := utils.SendRequest(req)
 	if err != nil {
 		return "", fmt.Errorf("Error reading repsonse data from Todoist for completed tasks: %w", err)
 	}

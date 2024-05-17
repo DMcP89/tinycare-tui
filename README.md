@@ -49,13 +49,13 @@ TODO_FILE=/path/to/todolist/file # Set this to tell the app where your local tas
 - [x] Add error handling for missing environment variables
 - [x] Create tests
 - [ ] Performance tuning
-    - [ ] pulling commits from local repos to use goroutines and channels
+    - [x] pulling commits from local repos to use goroutines and channels
     - [x] Rework refresh function to leverage text view's SetChangeFunc()
+    - [ ] Implement caching for API returns
 - [x] Logging
 - [ ] Refactoring
-    - [ ] Only pull user and events from Github once
     - [ ] Refactor GitHub interactions to use go-github
-    - [ ] Move environment variable handling out of util modules
+    - [x] Move environment variable handling out of util modules
     - [ ] Refactor tests to leverage cases
 - [x] Convert time on commits to days when >24 hours
 - [x] Write installation guide
