@@ -56,6 +56,10 @@ func main() {
 	weatherView.SetBorder(true).SetTitle("Weather ⛅")
 	weatherView.SetChangedFunc(changeFunc)
 
+	jokeView := newTabTextView("", tview.AlignCenter, selfCareView)
+	jokeView.SetBorder(true).SetTitle("Joke 🤣")
+	jokeView.SetChangedFunc(changeFunc)
+
 	weeklyView := newTabTextView("", tview.AlignLeft, weatherView)
 	weeklyView.SetBorder(true).SetTitle("Weekly Commits 📦")
 	weeklyView.SetChangedFunc(changeFunc)
@@ -72,12 +76,21 @@ func main() {
 			AddItem(weeklyView, 0, 2, false), 0, 2, true).
 		AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
 			AddItem(weatherView, 0, 2, false).
+			AddItem(jokeView, 0, 1, false).
 			AddItem(selfCareView, 0, 1, false).
 			AddItem(tasksView, 0, 4, false), 0, 1, false)
 	refresh := func() {
 		go func() {
 			advice := local.GetSelfCareAdvice()
 			selfCareView.SetText(advice)
+		}()
+
+		go func() {
+			joke, err := apis.GetJoke()
+			if err != nil {
+				jokeView.SetText(err.Error())
+			}
+			jokeView.SetText(joke)
 		}()
 
 		go func() {
