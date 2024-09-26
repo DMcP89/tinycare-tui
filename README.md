@@ -52,6 +52,7 @@ TODO_FILE=/path/to/todolist/file # Set this to tell the app where your local tas
     - [x] pulling commits from local repos to use goroutines and channels
     - [x] Rework refresh function to leverage text view's SetChangeFunc()
     - [ ] Implement caching for API returns
+    - [ ] Improve performance for pulling commits from local repos
 - [x] Logging
 - [ ] Refactoring
     - [ ] Refactor GitHub interactions to use go-github
@@ -62,7 +63,7 @@ TODO_FILE=/path/to/todolist/file # Set this to tell the app where your local tas
 - [x] Write configuration guide
 - [x] Fix time display on commits to adjust to timezone
 - [ ] Update github integration to include events from user's orgs
-
+- [x] Add joke API integration
 
 ## Contributions
 This is primarily a learning project for me so I will be working on it on and off but Issues and PRs are most welcome.
