@@ -52,13 +52,13 @@ func main() {
 	selfCareView.SetBorder(true).SetTitle("Self Care 😁")
 	selfCareView.SetChangedFunc(changeFunc)
 
-	weatherView := newTabTextView("", tview.AlignCenter, selfCareView)
-	weatherView.SetBorder(true).SetTitle("Weather ⛅")
-	weatherView.SetChangedFunc(changeFunc)
-
 	jokeView := newTabTextView("", tview.AlignCenter, selfCareView)
 	jokeView.SetBorder(true).SetTitle("Joke 🤣")
 	jokeView.SetChangedFunc(changeFunc)
+
+	weatherView := newTabTextView("", tview.AlignCenter, jokeView)
+	weatherView.SetBorder(true).SetTitle("Weather ⛅")
+	weatherView.SetChangedFunc(changeFunc)
 
 	weeklyView := newTabTextView("", tview.AlignLeft, weatherView)
 	weeklyView.SetBorder(true).SetTitle("Weekly Commits 📦")
