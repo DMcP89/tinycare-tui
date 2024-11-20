@@ -22,6 +22,10 @@ func GetCommits(path string, lookback int) (string, error) {
 		return "", fmt.Errorf("GetDailyCommits: Unable to find git repos for %s: %w", path, err)
 	}
 
+	if len(repositories) == 0 {
+		return "No Repos Found", nil
+	}
+
 	result := ""
 	for _, repo := range repositories {
 		commitMessages, err := GetCommitsFromTimeRange(repo, time.Now().AddDate(0, 0, lookback), time.Now())
@@ -51,7 +55,7 @@ func GetWeeklyCommits(path string) (string, error) {
 	for _, repo := range repositories {
 		commitMessages, err := GetCommitsFromTimeRange(repo, time.Now().AddDate(0, 0, -7), time.Now())
 		if err != nil {
-			return "", err
+			return "", fmt.Errorf("Unable to pull commits form time range %s: %w", path, err)
 		}
 
 		if len(commitMessages) > 0 {
