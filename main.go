@@ -132,7 +132,7 @@ func main() {
 				weeklyView.SetText(result)
 			} else {
 				if TINYCARE_WORKSPACE, ok := os.LookupEnv("TINYCARE_WORKSPACE"); ok {
-					result, err := local.GetWeeklyCommits(TINYCARE_WORKSPACE)
+					result, err := local.GetCommits(TINYCARE_WORKSPACE, -7)
 					if err != nil {
 						weeklyView.SetText(err.Error())
 					}
@@ -151,7 +151,7 @@ func main() {
 				dailyView.SetText(result)
 			} else {
 				if TINYCARE_WORKSPACE, ok := os.LookupEnv("TINYCARE_WORKSPACE"); ok {
-					result, err := local.GetDailyCommits(TINYCARE_WORKSPACE)
+					result, err := local.GetCommits(TINYCARE_WORKSPACE, -1)
 					if err != nil {
 						dailyView.SetText(err.Error())
 					}

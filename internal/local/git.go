@@ -13,7 +13,7 @@ import (
 	"github.com/go-git/go-git/v5/plumbing/object"
 )
 
-func GetDailyCommits(path string) (string, error) {
+func GetCommits(path string, lookback int) (string, error) {
 	if path == "" {
 		return "TINYCARE_WORKSPACE environment variable not set!", nil
 	}
@@ -24,7 +24,7 @@ func GetDailyCommits(path string) (string, error) {
 
 	result := ""
 	for _, repo := range repositories {
-		commitMessages, err := GetCommitsFromTimeRange(repo, time.Now().AddDate(0, 0, -1), time.Now())
+		commitMessages, err := GetCommitsFromTimeRange(repo, time.Now().AddDate(0, 0, lookback), time.Now())
 		if err != nil {
 			return "", err
 		}
