@@ -66,7 +66,7 @@ TODO_FILE=/path/to/todolist/file # Set this to tell the app where your local tas
 - [ ] Update todoist integration to include overdue tasks
 - [ ] Add functionality to mark tasks done
 - [x] Add joke API integration
-- [ ] Fix silent failure when attempting to fetch commits from nonexistant directory
+- [x] Fix silent failure when attempting to fetch commits from nonexistant directory
 - [ ] Task Warrior integration
 
 ## Contributions

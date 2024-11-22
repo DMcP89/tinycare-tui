@@ -135,11 +135,12 @@ func main() {
 					result, err := local.GetCommits(TINYCARE_WORKSPACE, -7)
 					if err != nil {
 						weeklyView.SetText(err.Error())
-					}
-					if result == "" {
-						weeklyView.SetText("No Commits Found")
 					} else {
-						weeklyView.SetText(result)
+						if result == "" {
+							weeklyView.SetText("No Commits Found")
+						} else {
+							weeklyView.SetText(result)
+						}
 					}
 				} else {
 					weeklyView.SetText("Please set either the TINYCARE_WORKSPACE or GITHUB_TOKEN environment variables to retrive commits")
@@ -158,11 +159,12 @@ func main() {
 					result, err := local.GetCommits(TINYCARE_WORKSPACE, -1)
 					if err != nil {
 						dailyView.SetText(err.Error())
-					}
-					if result == "" {
-						dailyView.SetText("No Commits Found")
 					} else {
-						dailyView.SetText(result)
+						if result == "" {
+							dailyView.SetText("No Commits Found")
+						} else {
+							dailyView.SetText(result)
+						}
 					}
 				} else {
 					dailyView.SetText("Please set either the TINYCARE_WORKSPACE or GITHUB_TOKEN environment variables to retrive commits")

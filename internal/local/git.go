@@ -19,7 +19,7 @@ func GetCommits(path string, lookback int) (string, error) {
 	}
 	repositories, err := FindGitRepositories(path)
 	if err != nil {
-		return "", fmt.Errorf("GetDailyCommits: Unable to find git repos for %s: %w", path, err)
+		return "", fmt.Errorf("Unable to find git repos for %s: %w", path, err)
 	}
 
 	if len(repositories) == 0 {
@@ -30,32 +30,7 @@ func GetCommits(path string, lookback int) (string, error) {
 	for _, repo := range repositories {
 		commitMessages, err := GetCommitsFromTimeRange(repo, time.Now().AddDate(0, 0, lookback), time.Now())
 		if err != nil {
-			return "", err
-		}
-
-		if len(commitMessages) > 0 {
-			result += fmt.Sprintf("[red]%s[white]\n", repo)
-			result += commitMessages + "\n"
-		}
-	}
-
-	return result, nil
-}
-
-func GetWeeklyCommits(path string) (string, error) {
-	if path == "" {
-		return "TINYCARE_WORKSPACE environment variable not set!", nil
-	}
-	repositories, err := FindGitRepositories(path)
-	if err != nil {
-		return "", err
-	}
-
-	result := ""
-	for _, repo := range repositories {
-		commitMessages, err := GetCommitsFromTimeRange(repo, time.Now().AddDate(0, 0, -7), time.Now())
-		if err != nil {
-			return "", fmt.Errorf("Unable to pull commits form time range %s: %w", path, err)
+			return "", fmt.Errorf("Error pulling commits from repo %s: %w", repo, err)
 		}
 
 		if len(commitMessages) > 0 {
