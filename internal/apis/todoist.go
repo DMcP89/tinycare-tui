@@ -16,7 +16,7 @@ func GetTodaysTasks(token string) (string, error) {
 	reqURL := "https://api.todoist.com/rest/v2/tasks?filter=today"
 	req, err := http.NewRequest("GET", reqURL, nil)
 	if err != nil {
-		return "", fmt.Errorf("Unable to create request for Todoist: %w", err)
+		return "", fmt.Errorf("unable to create request for Todoist: %w", err)
 	}
 
 	// Set the API token as a header
@@ -25,14 +25,14 @@ func GetTodaysTasks(token string) (string, error) {
 	// Read the response body
 	body, err := utils.SendRequest(req)
 	if err != nil {
-		return "", fmt.Errorf("Unable to read response data: %w", err)
+		return "", fmt.Errorf("unable to read response data: %w", err)
 	}
 
 	// Unmarshal the JSON data
 	var tasks []map[string]interface{}
 	err = json.Unmarshal(body, &tasks)
 	if err != nil {
-		return "", fmt.Errorf("Unable to unmarshal response data: %w", err)
+		return "", fmt.Errorf("unable to unmarshal response data: %w", err)
 	}
 
 	// Print the tasks
@@ -58,7 +58,7 @@ func GetCompletedTasks(token string) (string, error) {
 	var output string
 	req, err := http.NewRequest("GET", reqURL, nil)
 	if err != nil {
-		return "", fmt.Errorf("Error creating request for completed tasks: %w", err)
+		return "", fmt.Errorf("error creating request for completed tasks: %w", err)
 	}
 	q := req.URL.Query()
 	q.Add("since", today+"T00:00:00")
@@ -70,14 +70,14 @@ func GetCompletedTasks(token string) (string, error) {
 	// Read the response body
 	body, err := utils.SendRequest(req)
 	if err != nil {
-		return "", fmt.Errorf("Error reading repsonse data from Todoist for completed tasks: %w", err)
+		return "", fmt.Errorf("error reading repsonse data from Todoist for completed tasks: %w", err)
 	}
 
 	// Unmarshal the JSON data
 	var tasks map[string]interface{}
 	err = json.Unmarshal(body, &tasks)
 	if err != nil {
-		return "", fmt.Errorf("Error unmarshalling response data from Todoist for completed tasks: %w", err)
+		return "", fmt.Errorf("error unmarshalling response data from Todoist for completed tasks: %w", err)
 	}
 	// Print the tasks
 

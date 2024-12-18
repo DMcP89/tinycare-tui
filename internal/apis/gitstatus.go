@@ -138,7 +138,7 @@ func GetGitHubCommits(token string, lookBack int) (string, error) {
 	if token != "" {
 		user, userErr := GetGitHubUser(token)
 		if userErr != nil {
-			return "", fmt.Errorf("Unable to get Github User: %w", userErr)
+			return "", fmt.Errorf("unable to get Github User: %w", userErr)
 		}
 		var totalEvents []Event
 
@@ -148,7 +148,7 @@ func GetGitHubCommits(token string, lookBack int) (string, error) {
 			events, eventsErr := GetGitHubEvents(token, user, page)
 
 			if eventsErr != nil {
-				return "", fmt.Errorf("Unable to get events for user %s: %w", user, eventsErr)
+				return "", fmt.Errorf("unable to get events for user %s: %w", user, eventsErr)
 			}
 			totalEvents = append(totalEvents, events...)
 			page++

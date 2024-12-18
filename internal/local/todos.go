@@ -9,7 +9,7 @@ import (
 func GetLocalTasks(todoFile string) (string, error) {
 	file, err := os.Open(todoFile)
 	if err != nil {
-		return "", fmt.Errorf("Unable to open %s : %w", todoFile, err)
+		return "", fmt.Errorf("unable to open %s: %w", todoFile, err)
 	}
 	defer file.Close()
 
@@ -20,7 +20,7 @@ func GetLocalTasks(todoFile string) (string, error) {
 	}
 
 	if err := scanner.Err(); err != nil {
-		return "", fmt.Errorf("Unable to read %s : %w", todoFile, err)
+		return "", fmt.Errorf("unable to read %s: %w", todoFile, err)
 	}
 	return output, nil
 }

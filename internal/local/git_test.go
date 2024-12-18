@@ -13,30 +13,6 @@ import (
 	"github.com/go-git/go-git/v5/plumbing/object"
 )
 
-func Test_GetCommits(t *testing.T) {
-	// Create a temporary directory for testing
-	tempDir := createTempDir(t)
-	defer removeTempDir(t, tempDir)
-
-	// Initialize a git repository in the temporary directory
-	repoPath := initGitRepo(t, tempDir)
-
-	// Create a new commit with the current timestamp
-	hash := createCommit(t, repoPath, "Test commit", time.Now())
-
-	// Call the GetDailyCommits function
-	commits, err := GetCommits(repoPath, -1)
-	if err != nil {
-		t.Errorf("GetDailyCommits returned an error: %v", err)
-	}
-
-	// Verify the commit message
-	expectedMessage := fmt.Sprintf("[red]%s[white]\n[yellow]%s[white] - Test commit ([green]0 h(s) ago[white])\n\n", repoPath, hash.String()[:7])
-	if commits != expectedMessage {
-		t.Errorf("Expected commit message '%s', got '%s'", expectedMessage, commits)
-	}
-}
-
 // Helper functions for testing
 
 func createTempDir(t *testing.T) string {
@@ -98,7 +74,53 @@ func createCommit(t *testing.T, repoPath string, message string, timestamp time.
 		t.Fatalf("Failed to commit changes: %v", err)
 	}
 	return hash
+}
 
+func Test_GetCommits(t *testing.T) {
+	// Create a temporary directory for testing
+	tempDir := createTempDir(t)
+	defer removeTempDir(t, tempDir)
+
+	// Initialize a git repository in the temporary directory
+	repoPath := initGitRepo(t, tempDir)
+
+	// Create a new commit with the current timestamp
+	hash := createCommit(t, repoPath, "Test commit", time.Now())
+
+	tests := []struct {
+		name         string
+		repoPath     string
+		expectedMsg  string
+		expectedHash plumbing.Hash
+		expectError  bool
+	}{
+		{
+			name:         "Valid Commit",
+			repoPath:     repoPath,
+			expectedMsg:  fmt.Sprintf("[red]%s[white]\n[yellow]%s[white] - Test commit ([green]0 h(s) ago[white])\n\n", repoPath, hash.String()[:7]),
+			expectedHash: hash,
+			expectError:  false,
+		},
+		{
+			name:         "Invalid Commit",
+			repoPath:     "invalid/repo/path",
+			expectedMsg:  "",
+			expectedHash: plumbing.Hash{},
+			expectError:  true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			commits, err := GetCommits(tt.repoPath, -1)
+			if (err != nil) != tt.expectError {
+				t.Errorf("expected error: %v, got: %v", tt.expectError, err)
+			}
+			if commits != tt.expectedMsg {
+				t.Errorf("Expected commit message '%s', got '%s'", tt.expectedMsg, commits)
+			}
+		})
+	}
 }
 
 func Test_FindGitRepositories(t *testing.T) {
@@ -113,29 +135,42 @@ func Test_FindGitRepositories(t *testing.T) {
 		initGitRepo(t, filepath.Join(tempDir, "repo3")),
 	}
 
-	// Call the FindGitRepositories function
-	repos, err := FindGitRepositories(tempDir)
-	if err != nil {
-		t.Fatalf("Failed to find git repositories: %v", err)
+	tests := []struct {
+		name        string
+		tempDir     string
+		expectedLen int
+		expectError bool
+	}{
+		{
+			name:        "Find Repositories",
+			tempDir:     tempDir,
+			expectedLen: len(repoPaths),
+			expectError: false,
+		},
 	}
 
-	// Assert that the correct number of repositories were found
-	if len(repos) != len(repoPaths) {
-		t.Errorf("Expected %d repositories, got %d", len(repoPaths), len(repos))
-	}
-
-	// Assert that the found repositories match the expected paths
-	for _, repoPath := range repoPaths {
-		found := false
-		for _, repo := range repos {
-			if strings.Contains(repo, repoPath) {
-				found = true
-				break
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			repos, err := FindGitRepositories(tt.tempDir)
+			if (err != nil) != tt.expectError {
+				t.Fatalf("expected error: %v, got: %v", tt.expectError, err)
 			}
-		}
-		if !found {
-			t.Errorf("Expected repository %s not found", repoPath)
-		}
+			if len(repos) != tt.expectedLen {
+				t.Errorf("Expected %d repositories, got %d", tt.expectedLen, len(repos))
+			}
+			for _, repoPath := range repoPaths {
+				found := false
+				for _, repo := range repos {
+					if strings.Contains(repo, repoPath) {
+						found = true
+						break
+					}
+				}
+				if !found {
+					t.Errorf("Expected repository %s not found", repoPath)
+				}
+			}
+		})
 	}
 }
 
@@ -158,9 +193,28 @@ func Test_GetCommitsFromTimeRange(t *testing.T) {
 	createCommit(t, repoPath, "Commit 7", now.Add(-24*time.Hour))
 	createCommit(t, repoPath, "Commit 8", now)
 
-	// Call the GetCommitsFromTimeRange function
-	_, err := GetCommitsFromTimeRange(repoPath, now.Add(-7*24*time.Hour), now)
-	if err != nil {
-		t.Fatalf("Failed to get commits from time range: %v", err)
+	tests := []struct {
+		name        string
+		repoPath    string
+		startTime   time.Time
+		endTime     time.Time
+		expectError bool
+	}{
+		{
+			name:        "Get Commits From Time Range",
+			repoPath:    repoPath,
+			startTime:   now.Add(-7 * 24 * time.Hour),
+			endTime:     now,
+			expectError: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := GetCommitsFromTimeRange(tt.repoPath, tt.startTime, tt.endTime)
+			if (err != nil) != tt.expectError {
+				t.Fatalf("expected error: %v, got: %v", tt.expectError, err)
+			}
+		})
 	}
 }

@@ -19,7 +19,7 @@ func GetCommits(path string, lookback int) (string, error) {
 	}
 	repositories, err := FindGitRepositories(path)
 	if err != nil {
-		return "", fmt.Errorf("Unable to find git repos for %s: %w", path, err)
+		return "", fmt.Errorf("unable to find git repos for %s: %w", path, err)
 	}
 
 	if len(repositories) == 0 {
@@ -30,7 +30,7 @@ func GetCommits(path string, lookback int) (string, error) {
 	for _, repo := range repositories {
 		commitMessages, err := GetCommitsFromTimeRange(repo, time.Now().AddDate(0, 0, lookback), time.Now())
 		if err != nil {
-			return "", fmt.Errorf("Error pulling commits from repo %s: %w", repo, err)
+			return "", fmt.Errorf("error pulling commits from repo %s: %w", repo, err)
 		}
 
 		if len(commitMessages) > 0 {
@@ -47,6 +47,7 @@ func GetRepos(paths []string, c chan string, e chan error, q chan int) {
 	wg.Add(len(paths))
 	for _, path := range paths {
 		go func(path string) {
+			defer wg.Done()
 			err := filepath.Walk(path, func(p string, info os.FileInfo, err error) error {
 				if err != nil {
 					return err
@@ -59,11 +60,10 @@ func GetRepos(paths []string, c chan string, e chan error, q chan int) {
 			if err != nil {
 				e <- err
 			}
-			wg.Done()
 		}(path)
 	}
 	wg.Wait()
-	q <- 0
+	close(q)
 }
 
 func FindGitRepositories(path string) ([]string, error) {
@@ -81,6 +81,8 @@ func FindGitRepositories(path string) ([]string, error) {
 		case err := <-error_channel:
 			return nil, err
 		case <-quit_channel:
+			close(repo_channel)
+			close(error_channel)
 			return repositories, nil
 		}
 	}

@@ -15,51 +15,109 @@ const lookback = 7
 func Test_GetGitHubUser(t *testing.T) {
 	defer gock.Off()
 
-	gock.New(reqUrl + "/user").
-		Get("/").
-		Reply(200).
-		File("testdata/github_user.json")
-
-	login, err := GetGitHubUser(token)
-	if err != nil {
-		t.Errorf("Error testing GetGitHubUser")
+	tests := []struct {
+		name         string
+		mockReply    func()
+		expectedUser string
+		expectError  bool
+	}{
+		{
+			name: "Valid User",
+			mockReply: func() {
+				gock.New(reqUrl + "/user").
+					Get("/").
+					Reply(200).
+					File("testdata/github_user.json")
+			},
+			expectedUser: user,
+			expectError:  false,
+		},
 	}
 
-	if login != user {
-		t.Errorf("GetGitHubUser = %s, epexcted DMcP89", login)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.mockReply()
+			login, err := GetGitHubUser(token)
+			if (err != nil) != tt.expectError {
+				t.Errorf("expected error: %v, got: %v", tt.expectError, err)
+			}
+			if login != tt.expectedUser {
+				t.Errorf("GetGitHubUser = %s, expected %s", login, tt.expectedUser)
+			}
+		})
 	}
 }
 
 func Test_GetGitHubEvents(t *testing.T) {
 	defer gock.Off()
 
-	eventsEndpoint := fmt.Sprintf("/users/%s/events?per_page=100&page=%d", user, page)
-	gock.New(reqUrl + eventsEndpoint).
-		Get("/").
-		Reply(200).
-		File("testdata/github_events.json")
+	tests := []struct {
+		name        string
+		mockReply   func()
+		expectError bool
+	}{
+		{
+			name: "Valid Events",
+			mockReply: func() {
+				eventsEndpoint := fmt.Sprintf("/users/%s/events?per_page=100&page=%d", user, page)
+				gock.New(reqUrl + eventsEndpoint).
+					Get("/").
+					Reply(200).
+					File("testdata/github_events.json")
+			},
+			expectError: false,
+		},
+	}
 
-	_, err := GetGitHubEvents(token, user, page)
-	if err != nil {
-		t.Errorf("Error testing GetGitHubEvents: %s", err.Error())
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.mockReply()
+			_, err := GetGitHubEvents(token, user, page)
+			if (err != nil) != tt.expectError {
+				t.Errorf("expected error: %v, got: %v", tt.expectError, err)
+			}
+		})
 	}
 }
 
 func Test_GetGitHubCommits(t *testing.T) {
 	defer gock.Off()
 
-	gock.New(reqUrl + "/user").
-		Get("/").
-		Reply(200).
-		File("testdata/github_user.json")
+	tests := []struct {
+		name        string
+		mockReplies []func()
+		expectError bool
+	}{
+		{
+			name: "Valid Commits",
+			mockReplies: []func(){
+				func() {
+					gock.New(reqUrl + "/user").
+						Get("/").
+						Reply(200).
+						File("testdata/github_user.json")
+				},
+				func() {
+					eventsEndpoint := fmt.Sprintf("/users/%s/events?per_page=100&page=%d", user, page)
+					gock.New(reqUrl + eventsEndpoint).
+						Get("/").
+						Reply(200).
+						File("testdata/github_events.json")
+				},
+			},
+			expectError: false,
+		},
+	}
 
-	eventsEndpoint := fmt.Sprintf("/users/%s/events?per_page=100&page=%d", user, page)
-	gock.New(reqUrl + eventsEndpoint).
-		Get("/").
-		Reply(200).
-		File("testdata/github_events.json")
-	_, err := GetGitHubCommits(token, lookback)
-	if err != nil {
-		t.Errorf("Error testing GetGitHubCommits: %s", err.Error())
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			for _, mockReply := range tt.mockReplies {
+				mockReply()
+			}
+			_, err := GetGitHubCommits(token, lookback)
+			if (err != nil) != tt.expectError {
+				t.Errorf("expected error: %v, got: %v", tt.expectError, err)
+			}
+		})
 	}
 }

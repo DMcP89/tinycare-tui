@@ -18,7 +18,7 @@ func GetWeather(postal_code string) (string, error) {
 		//		weather_url := "https://api.openweathermap.org/data/2.5/weather?zip=" + postal_code + "&APPID=" + api_key + "&units=imperial"
 		resp, err := http.Get(fmt.Sprintf(weather_url, postal_code, api_key))
 		if err != nil {
-			return weather, fmt.Errorf("Unable to retrieve weather data from openweathermap.org: %w", err)
+			return weather, fmt.Errorf("unable to retrieve weather data from openweathermap.org: %w", err)
 		}
 		defer resp.Body.Close()
 
@@ -28,12 +28,12 @@ func GetWeather(postal_code string) (string, error) {
 
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
-			return weather, fmt.Errorf("Error reading response from openweathermap.org: %w", err)
+			return weather, fmt.Errorf("error reading response from openweathermap.org: %w", err)
 		}
 		var weather_data map[string]interface{}
 		err = json.Unmarshal(body, &weather_data)
 		if err != nil {
-			return weather, fmt.Errorf("Error parsing response data from openweathermap.org: %w", err)
+			return weather, fmt.Errorf("error parsing response data from openweathermap.org: %w", err)
 		}
 		weather = fmt.Sprintf("%s (%s)\n", weather_data["name"], weather_data["sys"].(map[string]interface{})["country"])
 		weather += fmt.Sprintf("Current: %.2f°\n", weather_data["main"].(map[string]interface{})["temp"])
