@@ -31,6 +31,18 @@ func NewTabTextView(next *TabTextView) *TabTextView {
 	}
 }
 
+func GetTextForView(f func(string) (string, error), envVar string, missingEnvErrorMessage string) string {
+	if token, ok := os.LookupEnv(envVar); ok {
+		result, err := f(token)
+		if err != nil {
+			return err.Error()
+		}
+		return result
+	} else {
+		return missingEnvErrorMessage
+	}
+}
+
 func main() {
 	app := tview.NewApplication()
 	changeFunc := func() { app.Draw() }
@@ -93,33 +105,17 @@ func main() {
 		}()
 
 		go func() {
-			var result string
-			var err error
-			if token, ok := os.LookupEnv("TODOIST_TOKEN"); ok {
-				result, err = apis.GetTodaysTasks(token)
+			text := GetTextForView(apis.GetTodaysTasks, "TODOIST_TOKEN", "")
+			if text != "" {
+				tasksView.SetText(text)
 			} else {
-				if todoFile, ok := os.LookupEnv("TODO_FILE"); ok {
-					result, err = local.GetLocalTasks(todoFile)
-				} else {
-					tasksView.SetText("Please set either the TODOIST_TOKEN or TODO_FILE environment variable")
-				}
+				tasksView.SetText(GetTextForView(local.GetLocalTasks, "TODO_FILE", "Please set either the TODOIST_TOKEN or TODO_FILE environment variable"))
 			}
-			if err != nil {
-				tasksView.SetText(err.Error())
-			}
-			tasksView.SetText(result)
 		}()
 
 		go func() {
-			if POSTAL_CODE, ok := os.LookupEnv("TINYCARE_POSTAL_CODE"); ok {
-				result, err := apis.GetWeather(POSTAL_CODE)
-				if err != nil {
-					weatherView.SetText(err.Error())
-				}
-				weatherView.SetText(result)
-			} else {
-				weatherView.SetText("Please set TINYCARE_POSTAL_CODE environment variable")
-			}
+			text := GetTextForView(apis.GetWeather, "TINYCARE_POSTAL_CODE", "Please set TINYCARE_POSTAL_CODE environment variable")
+			weatherView.SetText(text)
 		}()
 
 		go func() {
