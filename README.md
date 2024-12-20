@@ -72,6 +72,11 @@ tinycare-tui
 - [x] Fix silent failure when attempting to fetch commits from nonexistant directory
 - [ ] Task Warrior integration
 - [ ] Have project added to awesome-go
+    - [ ] reduce cyclomatic complexity of main function in main.go for Go Report Card
+    - [ ] setup code coverage Report
+    - [ ] Create documentation
+    - [ ] Add bages to README
+    - [ ] Open PR to awesome-Go
 
 ## Contributions
 This is primarily a learning project for me so I will be working on it on and off but Issues and PRs are most welcome.
