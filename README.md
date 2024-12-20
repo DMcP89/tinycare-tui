@@ -32,7 +32,10 @@ TINYCARE_POSTAL_CODE=123456 # Set this to the postal code that you want to pull 
 TINYCARE_WORKSPACE=/path/to/directory/with/git/repos,/another/path/to/repos # Set this to tell the app where to look for git repos to pull commits from
 TODO_FILE=/path/to/todolist/file # Set this to tell the app where your local task list is
 ```
-
+## Run
+```
+tinycare-tui
+```
 ## TO-DOs
 - [x] Allow for focusing on each box
 - [x] Expand on self care reminders
