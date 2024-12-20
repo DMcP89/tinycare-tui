@@ -2,7 +2,7 @@ package local
 
 import (
 	"fmt"
-	"os"
+	"io/fs"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -53,7 +53,7 @@ func GetRepos(paths []string, c chan string, e chan error, q chan int) {
 	for _, path := range paths {
 		go func(path string) {
 			defer wg.Done()
-			err := filepath.Walk(path, func(p string, info os.FileInfo, err error) error {
+			err := filepath.WalkDir(path, func(p string, info fs.DirEntry, err error) error {
 				if err != nil {
 					return err
 				}
