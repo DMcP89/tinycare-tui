@@ -70,7 +70,7 @@ func GetCompletedTasks(token string) (string, error) {
 	// Read the response body
 	body, err := utils.SendRequest(req)
 	if err != nil {
-		return "", fmt.Errorf("error reading repsonse data from Todoist for completed tasks: %w", err)
+		return "", fmt.Errorf("error reading response data from Todoist for completed tasks: %w", err)
 	}
 
 	// Unmarshal the JSON data
