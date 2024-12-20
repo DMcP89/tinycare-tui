@@ -88,6 +88,7 @@ type Event struct {
 }
 
 const reqUrl = "https://api.github.com"
+const missingTokenMessage = "GITHUB_TOKEN environment variable not set correctly"
 
 func GetGitHubUser(token string) (string, error) {
 	userEndpoint := "/user"
@@ -133,44 +134,62 @@ func GetGitHubEvents(token string, login string, page int) ([]Event, error) {
 	return events, err
 }
 
-func GetGitHubCommits(token string, lookBack int) (string, error) {
+func GetGitHubCommits(token string) (string, string, error) {
 
 	if token != "" {
 		user, userErr := GetGitHubUser(token)
 		if userErr != nil {
-			return "", fmt.Errorf("unable to get Github User: %w", userErr)
+			return "", "", fmt.Errorf("unable to get Github User: %w", userErr)
 		}
 		var totalEvents []Event
 
-		lookBackTime := time.Now().AddDate(0, 0, lookBack)
+		dayLookBackTime := time.Now().AddDate(0, 0, -1)
+		weekLookBackTime := time.Now().AddDate(0, 0, -7)
 		page := 1
 		for {
 			events, eventsErr := GetGitHubEvents(token, user, page)
 
 			if eventsErr != nil {
-				return "", fmt.Errorf("unable to get events for user %s: %w", user, eventsErr)
+				return "", "", fmt.Errorf("unable to get events for user %s: %w", user, eventsErr)
 			}
 			totalEvents = append(totalEvents, events...)
 			page++
-			if events[len(events)-1].CreatedAt.Before(lookBackTime) {
+			if events[len(events)-1].CreatedAt.Before(weekLookBackTime) {
 				break
 			}
 		}
 
-		var output string
-		for _, event := range totalEvents {
-			if len(event.Payload.Commits) > 0 && event.CreatedAt.In(time.Local).After(lookBackTime) {
-				output += fmt.Sprintf("[red]%s[white]\n", event.Repo.Name)
-				for _, commit := range event.Payload.Commits {
-					timeSinceCommit := time.Since(event.CreatedAt.In(time.Local))
-					formattedTimeSinceCommit := utils.HumanizeDuration(timeSinceCommit)
-					output += fmt.Sprintf("[yello]%s[white] (%s)\n", commit.Message, formattedTimeSinceCommit)
-				}
+		var weekOutput string
+		var dayOutput string
+
+		pullCommits := func(event Event) string {
+			var result string
+			for _, commit := range event.Payload.Commits {
+				timeSinceCommit := time.Since(event.CreatedAt.In(time.Local))
+				formattedTimeSinceCommit := utils.HumanizeDuration(timeSinceCommit)
+				result += fmt.Sprintf("[yello]%s[white] (%s)\n", commit.Message, formattedTimeSinceCommit)
 			}
+			return result
 		}
-		return output, nil
+
+		for _, event := range totalEvents {
+			if len(event.Payload.Commits) > 0 && event.CreatedAt.In(time.Local).After(dayLookBackTime) {
+				commitText := pullCommits(event)
+				dayOutput += fmt.Sprintf("[red]%s[white]\n", event.Repo.Name)
+				dayOutput += commitText
+				weekOutput += fmt.Sprintf("[red]%s[white]\n", event.Repo.Name)
+				weekOutput += commitText
+			} else if len(event.Payload.Commits) > 0 && event.CreatedAt.In(time.Local).After(weekLookBackTime) {
+				weekOutput += fmt.Sprintf("[red]%s[white]\n", event.Repo.Name)
+				weekOutput += pullCommits(event)
+			}
+
+		}
+
+		return dayOutput, weekOutput, nil
 
 	} else {
-		return "GITHUB_TOKEN environment variable not set correctly", nil
+		return missingTokenMessage, missingTokenMessage, nil
 	}
+
 }

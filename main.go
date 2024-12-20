@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"time"
 
@@ -125,49 +124,25 @@ func main() {
 
 		go func() {
 			if token, ok := os.LookupEnv("GITHUB_TOKEN"); ok {
-				result, err := apis.GetGitHubCommits(token, -7)
+				dayResult, weekResult, err := apis.GetGitHubCommits(token)
 				if err != nil {
+					dailyView.SetText(err.Error())
 					weeklyView.SetText(err.Error())
 				}
-				weeklyView.SetText(result)
+				dailyView.SetText(dayResult)
+				weeklyView.SetText(weekResult)
 			} else {
 				if TINYCARE_WORKSPACE, ok := os.LookupEnv("TINYCARE_WORKSPACE"); ok {
-					result, err := local.GetCommits(TINYCARE_WORKSPACE, -7)
+					dayResult, weekResult, err := local.GetCommits(TINYCARE_WORKSPACE)
 					if err != nil {
+						dailyView.SetText(err.Error())
 						weeklyView.SetText(err.Error())
 					} else {
-						if result == "" {
-							weeklyView.SetText("No Commits Found")
-						} else {
-							weeklyView.SetText(result)
-						}
+						dailyView.SetText(dayResult)
+						weeklyView.SetText(weekResult)
 					}
 				} else {
 					weeklyView.SetText("Please set either the TINYCARE_WORKSPACE or GITHUB_TOKEN environment variables to retrive commits")
-				}
-			}
-		}()
-		go func() {
-			if token, ok := os.LookupEnv("GITHUB_TOKEN"); ok {
-				result, err := apis.GetGitHubCommits(token, -1)
-				if err != nil {
-					dailyView.SetText(err.Error())
-				}
-				dailyView.SetText(result)
-			} else {
-				if TINYCARE_WORKSPACE, ok := os.LookupEnv("TINYCARE_WORKSPACE"); ok {
-					result, err := local.GetCommits(TINYCARE_WORKSPACE, -1)
-					if err != nil {
-						dailyView.SetText(err.Error())
-					} else {
-						if result == "" {
-							dailyView.SetText("No Commits Found")
-						} else {
-							dailyView.SetText(result)
-						}
-					}
-				} else {
-					dailyView.SetText("Please set either the TINYCARE_WORKSPACE or GITHUB_TOKEN environment variables to retrive commits")
 				}
 			}
 		}()
@@ -197,8 +172,4 @@ func main() {
 		panic(err)
 	}
 
-}
-
-func handleRefreshError(err error) {
-	fmt.Printf("Error: %v\n", err)
 }

@@ -112,7 +112,7 @@ func Test_GetCommits(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			commits, err := GetCommits(tt.repoPath, -1)
+			commits, _, err := GetCommits(tt.repoPath)
 			if (err != nil) != tt.expectError {
 				t.Errorf("expected error: %v, got: %v", tt.expectError, err)
 			}
@@ -211,7 +211,7 @@ func Test_GetCommitsFromTimeRange(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			_, err := GetCommitsFromTimeRange(tt.repoPath, tt.startTime, tt.endTime)
+			_, _, err := GetCommitsFromTimeRange(tt.repoPath)
 			if (err != nil) != tt.expectError {
 				t.Fatalf("expected error: %v, got: %v", tt.expectError, err)
 			}

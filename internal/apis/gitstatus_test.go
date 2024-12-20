@@ -10,7 +10,6 @@ import (
 const token = "TESTTOKEN"
 const user = "DMcP89"
 const page = 1
-const lookback = 7
 
 func Test_GetGitHubUser(t *testing.T) {
 	defer gock.Off()
@@ -114,7 +113,7 @@ func Test_GetGitHubCommits(t *testing.T) {
 			for _, mockReply := range tt.mockReplies {
 				mockReply()
 			}
-			_, err := GetGitHubCommits(token, lookback)
+			_, _, err := GetGitHubCommits(token)
 			if (err != nil) != tt.expectError {
 				t.Errorf("expected error: %v, got: %v", tt.expectError, err)
 			}

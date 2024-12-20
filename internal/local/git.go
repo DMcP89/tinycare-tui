@@ -13,33 +13,38 @@ import (
 	"github.com/go-git/go-git/v5/plumbing/object"
 )
 
-func GetCommits(path string, lookback int) (string, error) {
+const ENVIRONMENT_VARIABLE_ERROR = "TINYCARE_WORKSPACE environment variable not set!"
+
+func GetCommits(path string) (string, string, error) {
 	if path == "" {
-		return "TINYCARE_WORKSPACE environment variable not set!", nil
+		return ENVIRONMENT_VARIABLE_ERROR, ENVIRONMENT_VARIABLE_ERROR, nil
 	}
 	repositories, err := FindGitRepositories(path)
 	if err != nil {
-		return "", fmt.Errorf("unable to find git repos for %s: %w", path, err)
+		return "", "", fmt.Errorf("unable to find git repos for %s: %w", path, err)
 	}
 
 	if len(repositories) == 0 {
-		return "No Repos Found", nil
+		return "No Repos Found", "No Repos Found", nil
 	}
 
-	result := ""
+	dayResult := ""
+	weekResult := ""
 	for _, repo := range repositories {
-		commitMessages, err := GetCommitsFromTimeRange(repo, time.Now().AddDate(0, 0, lookback), time.Now())
+		dayCommitMessages, weekCommitMessages, err := GetCommitsFromTimeRange(repo)
 		if err != nil {
-			return "", fmt.Errorf("error pulling commits from repo %s: %w", repo, err)
+			return "", "", fmt.Errorf("error pulling commits from repo %s: %w", repo, err)
+		}
+		if dayCommitMessages != "" {
+			dayResult += fmt.Sprintf("[red]%s[white]\n", repo) + dayCommitMessages + "\n"
+		}
+		if weekCommitMessages != "" {
+			weekResult += fmt.Sprintf("[red]%s[white]\n", repo) + weekCommitMessages + "\n"
 		}
 
-		if len(commitMessages) > 0 {
-			result += fmt.Sprintf("[red]%s[white]\n", repo)
-			result += commitMessages + "\n"
-		}
 	}
 
-	return result, nil
+	return dayResult, weekResult, nil
 }
 
 func GetRepos(paths []string, c chan string, e chan error, q chan int) {
@@ -88,39 +93,46 @@ func FindGitRepositories(path string) ([]string, error) {
 	}
 }
 
-func GetCommitsFromTimeRange(repoPath string, since time.Time, until time.Time) (string, error) {
+func GetCommitsFromTimeRange(repoPath string) (string, string, error) {
 	repo, err := git.PlainOpen(repoPath)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
-
-	commitMessages := ""
 
 	headRef, err := repo.Head()
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	commitIter, err := repo.Log(&git.LogOptions{
 		From: headRef.Hash(),
 	})
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
+	dayLookBackTime := time.Now().AddDate(0, 0, -1)
+	weekLookBackTime := time.Now().AddDate(0, 0, -7)
+
+	dayCommitMessages := ""
+	weekCommitMessages := ""
 
 	err = commitIter.ForEach(func(commit *object.Commit) error {
-		if commit.Committer.When.After(since) && commit.Committer.When.Before(until) {
+		if commit.Committer.When.After(dayLookBackTime) && commit.Committer.When.Before(time.Now()) {
 			timeSinceCommit := time.Since(commit.Committer.When)
 			formattedTimeSinceCommit := utils.HumanizeDuration(timeSinceCommit)
-
-			commitMessages += fmt.Sprintf("[yellow]%s[white] - %s (%s)\n", commit.Hash.String()[:7], strings.TrimSuffix(commit.Message, "\n"), formattedTimeSinceCommit)
+			dayCommitMessages += fmt.Sprintf("[yellow]%s[white] - %s (%s)\n", commit.Hash.String()[:7], strings.TrimSuffix(commit.Message, "\n"), formattedTimeSinceCommit)
+			weekCommitMessages += fmt.Sprintf("[yellow]%s[white] - %s (%s)\n", commit.Hash.String()[:7], strings.TrimSuffix(commit.Message, "\n"), formattedTimeSinceCommit)
+		} else if commit.Committer.When.After(weekLookBackTime) && commit.Committer.When.Before(time.Now()) {
+			timeSinceCommit := time.Since(commit.Committer.When)
+			formattedTimeSinceCommit := utils.HumanizeDuration(timeSinceCommit)
+			weekCommitMessages += fmt.Sprintf("[yellow]%s[white] - %s (%s)\n", commit.Hash.String()[:7], strings.TrimSuffix(commit.Message, "\n"), formattedTimeSinceCommit)
 		}
 		return nil
 	})
 
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
-	return commitMessages, nil
+	return dayCommitMessages, weekCommitMessages, nil
 }
