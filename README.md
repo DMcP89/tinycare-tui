@@ -1,4 +1,5 @@
 # Tinycare-tui
+![Coverage](https://img.shields.io/badge/Coverage-60.3%25-yellow)
 
 Small terminal app that shows git commits from the last 24 hours and week, current weather, some self care advice, and you current todo list tasks
 inspired by [@notwaldorf](https://github.com/notwaldorf) [tiny-care-terminal](https://github.com/notwaldorf/tiny-care-terminal)
