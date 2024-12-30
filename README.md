@@ -1,10 +1,10 @@
 # Tinycare-tui
-![Coverage](https://img.shields.io/badge/Coverage-60.3%25-yellow)
+![Coverage](https://img.shields.io/badge/Coverage-60.3%25-yellow) [![Go Reference](https://pkg.go.dev/badge/github.com/DMcP89/tinycare-tui.svg)](https://pkg.go.dev/github.com/DMcP89/tinycare-tui) [![Go Report Card](https://goreportcard.com/badge/github.com/DMcP89/tinycare-tui)](https://goreportcard.com/report/github.com/DMcP89/tinycare-tui)
 
 Small terminal app that shows git commits from the last 24 hours and week, current weather, some self care advice, and you current todo list tasks
 inspired by [@notwaldorf](https://github.com/notwaldorf) [tiny-care-terminal](https://github.com/notwaldorf/tiny-care-terminal)
 
-[![Go Reference](https://pkg.go.dev/badge/github.com/DMcP89/tinycare-tui.svg)](https://pkg.go.dev/github.com/DMcP89/tinycare-tui) [![Go Report Card](https://goreportcard.com/badge/github.com/DMcP89/tinycare-tui)](https://goreportcard.com/report/github.com/DMcP89/tinycare-tui)
+
 
 
 ![screenshot](image.png)
@@ -76,10 +76,11 @@ tinycare-tui
 - [x] Fix silent failure when attempting to fetch commits from nonexistant directory
 - [ ] Task Warrior integration
 - [ ] Have project added to awesome-go
-    - [ ] reduce cyclomatic complexity of main function in main.go for Go Report Card
-    - [ ] setup code coverage Report
-    - [ ] Create documentation
-    - [ ] Add bages to README
+    - [x] reduce cyclomatic complexity of main function in main.go for Go Report Card
+    - [x] setup code coverage Report
+    - [x] Create documentation
+    - [x] Add bages to README
+    - [ ] Get coverage to 80%
     - [ ] Open PR to awesome-Go
 
 ## Contributions
