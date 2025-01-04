@@ -6,30 +6,10 @@ import (
 
 	"github.com/DMcP89/tinycare-tui/internal/apis"
 	"github.com/DMcP89/tinycare-tui/internal/local"
+	"github.com/DMcP89/tinycare-tui/internal/ui"
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
-
-type TabTextView struct {
-	*tview.TextView
-	next *TabTextView
-}
-
-func (view *TabTextView) SetNext(next *TabTextView) *TabTextView {
-	view.next = next
-	return view
-}
-
-func (view *TabTextView) GetNext() *TabTextView {
-	return view.next
-}
-
-func NewTabTextView(next *TabTextView) *TabTextView {
-	return &TabTextView{
-		TextView: tview.NewTextView(),
-		next:     next,
-	}
-}
 
 func GetTextForView(f func(string) (string, error), envVar string, missingEnvErrorMessage string) string {
 	if token, ok := os.LookupEnv(envVar); ok {
@@ -46,8 +26,8 @@ func GetTextForView(f func(string) (string, error), envVar string, missingEnvErr
 func main() {
 	app := tview.NewApplication()
 	changeFunc := func() { app.Draw() }
-	newTabTextView := func(text string, textAlignment int, next *TabTextView) *TabTextView {
-		view := NewTabTextView(next)
+	newTabTextView := func(text string, textAlignment int, next *ui.TabTextView) *ui.TabTextView {
+		view := ui.NewTabTextView(next)
 		view.SetText(text).
 			SetTextAlign(textAlignment).
 			SetDynamicColors(true)
@@ -153,7 +133,7 @@ func main() {
 
 	flex.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		if event.Key() == tcell.KeyTab {
-			app.SetFocus(app.GetFocus().(*TabTextView).next)
+			app.SetFocus(app.GetFocus().(*ui.TabTextView).GetNext())
 		} else if (event.Key() == tcell.KeyRune) && (event.Rune() == rune('q')) {
 			app.Stop()
 		} else if (event.Key() == tcell.KeyRune) && (event.Rune() == rune('r')) {
