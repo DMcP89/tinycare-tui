@@ -1,4 +1,5 @@
 # Tinycare-tui
+[![Go Reference](https://pkg.go.dev/badge/github.com/DMcP89/tinycare-tui.svg)](https://pkg.go.dev/github.com/DMcP89/tinycare-tui) [![Go Report Card](https://goreportcard.com/badge/github.com/DMcP89/tinycare-tui)](https://goreportcard.com/report/github.com/DMcP89/tinycare-tui)
 ![Coverage](https://img.shields.io/badge/Coverage-82.3%25-brightgreen)
 
 Small terminal app that shows git commits from the last 24 hours and week, current weather, some self care advice, and you current todo list tasks
