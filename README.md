@@ -1,5 +1,5 @@
 # Tinycare-tui
-[![Go Reference](https://pkg.go.dev/badge/github.com/DMcP89/tinycare-tui.svg)](https://pkg.go.dev/github.com/DMcP89/tinycare-tui) [![Go Report Card](https://goreportcard.com/badge/github.com/DMcP89/tinycare-tui)](https://goreportcard.com/report/github.com/DMcP89/tinycare-tui)
+[![Mentioned in Awesome Go](https://awesome.re/mentioned-badge.svg)](https://github.com/avelino/awesome-go)[![Go Reference](https://pkg.go.dev/badge/github.com/DMcP89/tinycare-tui.svg)](https://pkg.go.dev/github.com/DMcP89/tinycare-tui) [![Go Report Card](https://goreportcard.com/badge/github.com/DMcP89/tinycare-tui)](https://goreportcard.com/report/github.com/DMcP89/tinycare-tui)
 ![Coverage](https://img.shields.io/badge/Coverage-82.3%25-brightgreen)
 
 Small terminal app that shows git commits from the last 24 hours and week, current weather, some self care advice, and you current todo list tasks
@@ -76,13 +76,13 @@ tinycare-tui
 - [x] Add joke API integration
 - [x] Fix silent failure when attempting to fetch commits from nonexistant directory
 - [ ] Task Warrior integration
-- [ ] Have project added to awesome-go
+- [x] Have project added to awesome-go
     - [x] reduce cyclomatic complexity of main function in main.go for Go Report Card
     - [x] setup code coverage Report
     - [x] Create documentation
     - [x] Add bages to README
-    - [ ] Get coverage to 80%
-    - [ ] Open PR to awesome-Go
+    - [x] Get coverage to 80%
+    - [x] Open PR to awesome-Go
 
 ## Contributions
 This is primarily a learning project for me so I will be working on it on and off but Issues and PRs are most welcome.
