@@ -154,7 +154,7 @@ func GetGitHubCommits(token string) (string, string, error) {
 			}
 			totalEvents = append(totalEvents, events...)
 			page++
-			if events[len(events)-1].CreatedAt.Before(weekLookBackTime) {
+			if len(events) > 0 && events[len(events)-1].CreatedAt.Before(weekLookBackTime) {
 				break
 			}
 		}
