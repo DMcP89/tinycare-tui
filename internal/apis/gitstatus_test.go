@@ -10,6 +10,7 @@ import (
 const token = "TESTTOKEN"
 const user = "DMcP89"
 const page = 1
+const apiUrl = "https://api.github.com"
 
 func Test_GetGitHubUser(t *testing.T) {
 	defer gock.Off()
@@ -23,8 +24,8 @@ func Test_GetGitHubUser(t *testing.T) {
 		{
 			name: "Valid User",
 			mockReply: func() {
-				gock.New(reqUrl + "/user").
-					Get("/").
+				gock.New(apiUrl).
+					Get("/user").
 					Reply(200).
 					File("testdata/github_user.json")
 			},
@@ -58,9 +59,11 @@ func Test_GetGitHubEvents(t *testing.T) {
 		{
 			name: "Valid Events",
 			mockReply: func() {
-				eventsEndpoint := fmt.Sprintf("/users/%s/events?per_page=100&page=%d", user, page)
-				gock.New(reqUrl + eventsEndpoint).
-					Get("/").
+				eventsEndpoint := fmt.Sprintf("/users/%s/events", user)
+				gock.New(apiUrl).
+					Get(eventsEndpoint).
+					MatchParam("per_page", "100").
+					MatchParam("page", fmt.Sprintf("%d", page)).
 					Reply(200).
 					File("testdata/github_events.json")
 			},
@@ -91,15 +94,17 @@ func Test_GetGitHubCommits(t *testing.T) {
 			name: "Valid Commits",
 			mockReplies: []func(){
 				func() {
-					gock.New(reqUrl + "/user").
-						Get("/").
+					gock.New(apiUrl).
+						Get("/user").
 						Reply(200).
 						File("testdata/github_user.json")
 				},
 				func() {
-					eventsEndpoint := fmt.Sprintf("/users/%s/events?per_page=100&page=%d", user, page)
-					gock.New(reqUrl + eventsEndpoint).
-						Get("/").
+					eventsEndpoint := fmt.Sprintf("/users/%s/events", user)
+					gock.New(apiUrl).
+						Get(eventsEndpoint).
+						MatchParam("per_page", "100").
+						MatchParam("page", fmt.Sprintf("%d", page)).
 						Reply(200).
 						File("testdata/github_events.json")
 				},
