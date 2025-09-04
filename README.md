@@ -62,8 +62,8 @@ tinycare-tui
     - [ ] Implement caching for API returns
     - [x] Improve performance for pulling commits from local repos
 - [x] Logging
-- [ ] Refactoring
-    - [ ] Refactor GitHub interactions to use go-github
+- [x] Refactoring
+    - [x] Refactor GitHub interactions to use go-github
     - [x] Move environment variable handling out of util modules
     - [x] Refactor tests to leverage cases
 - [x] Convert time on commits to days when >24 hours
