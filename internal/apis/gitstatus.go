@@ -48,33 +48,33 @@ func newGitHubClient(token string) *github.Client {
 func GetGitHubUser(token string) (string, error) {
 	client := newGitHubClient(token)
 	ctx := context.Background()
-	
+
 	user, _, err := client.Users.Get(ctx, "")
 	if err != nil {
 		return "", err
 	}
-	
+
 	if user.Login == nil {
 		return "", fmt.Errorf("user login not found")
 	}
-	
+
 	return *user.Login, nil
 }
 
 func GetGitHubEvents(token string, login string, page int) ([]*github.Event, error) {
 	client := newGitHubClient(token)
 	ctx := context.Background()
-	
+
 	opts := &github.ListOptions{
 		Page:    page,
 		PerPage: 100,
 	}
-	
+
 	events, _, err := client.Activity.ListEventsPerformedByUser(ctx, login, false, opts)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return events, nil
 }
 
@@ -116,7 +116,7 @@ func GetGitHubCommits(token string) (string, string, error) {
 						if event.CreatedAt != nil && commit.Message != nil {
 							timeSinceCommit := time.Since(event.CreatedAt.In(time.Local))
 							formattedTimeSinceCommit := utils.HumanizeDuration(timeSinceCommit)
-							result += fmt.Sprintf("[yello]%s[white] (%s)\n", *commit.Message, formattedTimeSinceCommit)
+							result += fmt.Sprintf("[yellow]%s[white]: %s (%s)\n", (*commit.SHA)[:7], *commit.Message, formattedTimeSinceCommit)
 						}
 					}
 				}
