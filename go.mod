@@ -1,26 +1,29 @@
 module github.com/DMcP89/tinycare-tui
 
-go 1.20
+go 1.23.0
+
+toolchain go1.24.6
 
 require (
-	github.com/PuerkitoBio/goquery v1.8.1
 	github.com/gdamore/tcell/v2 v2.6.0
 	github.com/go-git/go-git/v5 v5.7.0
+	github.com/google/go-github/v57 v57.0.0
+	github.com/h2non/gock v1.2.0
 	github.com/rivo/tview v0.0.0-20230530133550-8bd761dda819
+	golang.org/x/oauth2 v0.30.0
 )
 
 require (
 	github.com/Microsoft/go-winio v0.6.1 // indirect
 	github.com/ProtonMail/go-crypto v0.0.0-20230528122434-6f98819771a1 // indirect
 	github.com/acomagu/bufpipe v1.0.4 // indirect
-	github.com/andybalholm/cascadia v1.3.1 // indirect
 	github.com/cloudflare/circl v1.3.3 // indirect
 	github.com/emirpasic/gods v1.18.1 // indirect
 	github.com/gdamore/encoding v1.0.0 // indirect
 	github.com/go-git/gcfg v1.5.1-0.20230307220236-3a3c6141e376 // indirect
 	github.com/go-git/go-billy/v5 v5.4.1 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
-	github.com/h2non/gock v1.2.0 // indirect
+	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/h2non/parth v0.0.0-20190131123155-b4df798d6542 // indirect
 	github.com/imdario/mergo v0.3.16 // indirect
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect

@@ -24,114 +24,58 @@ The GetWeeklyCommits should be similar however instead of only returning commits
 package apis
 
 import (
-	"encoding/json"
+	"context"
 	"fmt"
-	"net/http"
 	"time"
 
 	"github.com/DMcP89/tinycare-tui/internal/utils"
+	"github.com/google/go-github/v57/github"
+	"golang.org/x/oauth2"
 )
 
-// Actor represents the actor in the JSON structure.
-type Actor struct {
-	ID           int    `json:"id"`
-	Login        string `json:"login"`
-	DisplayLogin string `json:"display_login"`
-	GravatarID   string `json:"gravatar_id"`
-	URL          string `json:"url"`
-	AvatarURL    string `json:"avatar_url"`
-}
-
-// Repo represents the repo in the JSON structure.
-type Repo struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
-	URL  string `json:"url"`
-}
-
-// Author represents the author in the Commit structure.
-type Author struct {
-	Email string `json:"email"`
-	Name  string `json:"name"`
-}
-
-// Commit represents a commit in the JSON structure.
-type Commit struct {
-	SHA      string `json:"sha"`
-	Author   Author `json:"author"`
-	Message  string `json:"message"`
-	Distinct bool   `json:"distinct"`
-	URL      string `json:"url"`
-}
-
-// Payload represents the payload in the JSON structure.
-type Payload struct {
-	RepositoryID int      `json:"repository_id"`
-	PushID       int64    `json:"push_id"`
-	Size         int      `json:"size"`
-	DistinctSize int      `json:"distinct_size"`
-	Ref          string   `json:"ref"`
-	Head         string   `json:"head"`
-	Before       string   `json:"before"`
-	Commits      []Commit `json:"commits"`
-}
-
-// Event represents the main structure of each event in the JSON array.
-type Event struct {
-	ID        string    `json:"id"`
-	Type      string    `json:"type"`
-	Actor     Actor     `json:"actor"`
-	Repo      Repo      `json:"repo"`
-	Payload   Payload   `json:"payload"`
-	Public    bool      `json:"public"`
-	CreatedAt time.Time `json:"created_at"`
-}
-
-const reqUrl = "https://api.github.com"
 const missingTokenMessage = "GITHUB_TOKEN environment variable not set correctly"
 
-func GetGitHubUser(token string) (string, error) {
-	userEndpoint := "/user"
-	// get the username of the authenticated user
-	req, err := http.NewRequest("GET", reqUrl+userEndpoint, nil)
-
-	if err != nil {
-		return "", err
-	}
-	// Set the API token as a header
-	req.Header.Set("Authorization", "Bearer "+token)
-
-	body, err := utils.SendRequest(req)
-	if err != nil {
-		return "", err
-	}
-
-	var user map[string]interface{}
-	err = json.Unmarshal(body, &user)
-	return user["login"].(string), err
+// newGitHubClient creates a new GitHub client with authentication
+func newGitHubClient(token string) *github.Client {
+	ctx := context.Background()
+	ts := oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: token},
+	)
+	tc := oauth2.NewClient(ctx, ts)
+	return github.NewClient(tc)
 }
 
-func GetGitHubEvents(token string, login string, page int) ([]Event, error) {
-	eventsEndpoint := fmt.Sprintf("/users/%s/events?per_page=100&page=%d", login, page)
+func GetGitHubUser(token string) (string, error) {
+	client := newGitHubClient(token)
+	ctx := context.Background()
 
-	req, err := http.NewRequest("GET", reqUrl+eventsEndpoint, nil)
+	user, _, err := client.Users.Get(ctx, "")
+	if err != nil {
+		return "", err
+	}
 
+	if user.Login == nil {
+		return "", fmt.Errorf("user login not found")
+	}
+
+	return *user.Login, nil
+}
+
+func GetGitHubEvents(token string, login string, page int) ([]*github.Event, error) {
+	client := newGitHubClient(token)
+	ctx := context.Background()
+
+	opts := &github.ListOptions{
+		Page:    page,
+		PerPage: 100,
+	}
+
+	events, _, err := client.Activity.ListEventsPerformedByUser(ctx, login, false, opts)
 	if err != nil {
 		return nil, err
 	}
-	// Set the API token as a header
-	req.Header.Set("Authorization", "Bearer "+token)
 
-	body, err := utils.SendRequest(req)
-	if err != nil {
-		return nil, err
-	}
-	// Unmarshal the JSON data
-
-	var events []Event
-	err = json.Unmarshal(body, &events)
-
-	return events, err
+	return events, nil
 }
 
 func GetGitHubCommits(token string) (string, string, error) {
@@ -141,7 +85,7 @@ func GetGitHubCommits(token string) (string, string, error) {
 		if userErr != nil {
 			return "", "", fmt.Errorf("unable to get Github User: %w", userErr)
 		}
-		var totalEvents []Event
+		var totalEvents []*github.Event
 
 		dayLookBackTime := time.Now().AddDate(0, 0, -1)
 		weekLookBackTime := time.Now().AddDate(0, 0, -7)
@@ -154,7 +98,7 @@ func GetGitHubCommits(token string) (string, string, error) {
 			}
 			totalEvents = append(totalEvents, events...)
 			page++
-			if len(events) > 0 && events[len(events)-1].CreatedAt.Before(weekLookBackTime) {
+			if len(events) > 0 && events[len(events)-1].CreatedAt != nil && events[len(events)-1].CreatedAt.Before(weekLookBackTime) {
 				break
 			}
 		}
@@ -162,28 +106,44 @@ func GetGitHubCommits(token string) (string, string, error) {
 		var weekOutput string
 		var dayOutput string
 
-		pullCommits := func(event Event) string {
+		pullCommits := func(event *github.Event) string {
 			var result string
-			for _, commit := range event.Payload.Commits {
-				timeSinceCommit := time.Since(event.CreatedAt.In(time.Local))
-				formattedTimeSinceCommit := utils.HumanizeDuration(timeSinceCommit)
-				result += fmt.Sprintf("[yello]%s[white] (%s)\n", commit.Message, formattedTimeSinceCommit)
+			// Type assertion to get push event payload
+			if event.Type != nil && *event.Type == "PushEvent" {
+				// Parse the raw payload as PushEvent
+				if pushEvent, ok := event.Payload().(*github.PushEvent); ok && pushEvent.Commits != nil {
+					for _, commit := range pushEvent.Commits {
+						if event.CreatedAt != nil && commit.Message != nil {
+							timeSinceCommit := time.Since(event.CreatedAt.In(time.Local))
+							formattedTimeSinceCommit := utils.HumanizeDuration(timeSinceCommit)
+							result += fmt.Sprintf("[yellow]%s[white]: %s (%s)\n", (*commit.SHA)[:7], *commit.Message, formattedTimeSinceCommit)
+						}
+					}
+				}
 			}
 			return result
 		}
 
 		for _, event := range totalEvents {
-			if len(event.Payload.Commits) > 0 && event.CreatedAt.In(time.Local).After(dayLookBackTime) {
-				commitText := pullCommits(event)
-				dayOutput += fmt.Sprintf("[red]%s[white]\n", event.Repo.Name)
-				dayOutput += commitText
-				weekOutput += fmt.Sprintf("[red]%s[white]\n", event.Repo.Name)
-				weekOutput += commitText
-			} else if len(event.Payload.Commits) > 0 && event.CreatedAt.In(time.Local).After(weekLookBackTime) {
-				weekOutput += fmt.Sprintf("[red]%s[white]\n", event.Repo.Name)
-				weekOutput += pullCommits(event)
+			if event.Type != nil && *event.Type == "PushEvent" && event.CreatedAt != nil {
+				// Check if this is a push event with commits and within our time range
+				if pushEvent, ok := event.Payload().(*github.PushEvent); ok && pushEvent.Commits != nil && len(pushEvent.Commits) > 0 {
+					if event.CreatedAt.In(time.Local).After(dayLookBackTime) {
+						commitText := pullCommits(event)
+						if event.Repo != nil && event.Repo.Name != nil {
+							dayOutput += fmt.Sprintf("[red]%s[white]\n", *event.Repo.Name)
+							dayOutput += commitText
+							weekOutput += fmt.Sprintf("[red]%s[white]\n", *event.Repo.Name)
+							weekOutput += commitText
+						}
+					} else if event.CreatedAt.In(time.Local).After(weekLookBackTime) {
+						if event.Repo != nil && event.Repo.Name != nil {
+							weekOutput += fmt.Sprintf("[red]%s[white]\n", *event.Repo.Name)
+							weekOutput += pullCommits(event)
+						}
+					}
+				}
 			}
-
 		}
 
 		return dayOutput, weekOutput, nil
