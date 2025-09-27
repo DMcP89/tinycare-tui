@@ -124,8 +124,13 @@ func GetGitHubCommits(token string) (string, string, error) {
 			return result
 		}
 
+		if len(totalEvents) == 0 {
+			return "No recent GitHub activity found.", "No recent GitHub activity found.", nil
+		}
+
 		for _, event := range totalEvents {
 			if event.Type != nil && *event.Type == "PushEvent" && event.CreatedAt != nil {
+
 				// Check if this is a push event with commits and within our time range
 				if pushEvent, ok := event.Payload().(*github.PushEvent); ok && pushEvent.Commits != nil && len(pushEvent.Commits) > 0 {
 					if event.CreatedAt.In(time.Local).After(dayLookBackTime) {
@@ -145,7 +150,12 @@ func GetGitHubCommits(token string) (string, string, error) {
 				}
 			}
 		}
-
+		if dayOutput == "" {
+			dayOutput = "No commits found in the last day."
+		}
+		if weekOutput == "" {
+			weekOutput = "No commits found in the last week."
+		}
 		return dayOutput, weekOutput, nil
 
 	} else {
