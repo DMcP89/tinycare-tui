@@ -70,7 +70,7 @@ tinycare-tui
 - [x] Write installation guide
 - [x] Write configuration guide
 - [x] Fix time display on commits to adjust to timezone
-- [ ] Update github integration to include events from user's orgs
+- [x] Update github integration to include events from user's orgs
 - [ ] Update todoist integration to include overdue tasks
 - [ ] Add functionality to mark tasks done
 - [x] Add joke API integration
