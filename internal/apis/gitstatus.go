@@ -78,6 +78,47 @@ func GetGitHubEvents(token string, login string, page int) ([]*github.Event, err
 	return events, nil
 }
 
+func GetGitHubOrgs(token string) ([]*github.Organization, error) {
+	client := newGitHubClient(token)
+	ctx := context.Background()
+
+	opts := &github.ListOptions{
+		PerPage: 100,
+	}
+
+	orgs, _, err := client.Organizations.List(ctx, "", opts)
+	if err != nil {
+		return nil, err
+	}
+
+	return orgs, nil
+}
+
+func GetGitHubOrgEvents(token string, org string, user string, page int) ([]*github.Event, error) {
+	client := newGitHubClient(token)
+	ctx := context.Background()
+
+	opts := &github.ListOptions{
+		Page:    page,
+		PerPage: 100,
+	}
+
+	events, _, err := client.Activity.ListEventsForOrganization(ctx, org, opts)
+	if err != nil {
+		return nil, err
+	}
+
+	// Filter events to only those performed by the specified user
+	var userEvents []*github.Event
+	for _, event := range events {
+		if event.Actor != nil && event.Actor.Login != nil && *event.Actor.Login == user {
+			userEvents = append(userEvents, event)
+		}
+	}
+
+	return userEvents, nil
+}
+
 func GetGitHubCommits(token string) (string, string, error) {
 
 	if token != "" {
@@ -89,6 +130,8 @@ func GetGitHubCommits(token string) (string, string, error) {
 
 		dayLookBackTime := time.Now().AddDate(0, 0, -1)
 		weekLookBackTime := time.Now().AddDate(0, 0, -7)
+
+		// Get user's personal events
 		page := 1
 		for {
 			events, eventsErr := GetGitHubEvents(token, user, page)
@@ -100,6 +143,30 @@ func GetGitHubCommits(token string) (string, string, error) {
 			page++
 			if len(events) > 0 && events[len(events)-1].CreatedAt != nil && events[len(events)-1].CreatedAt.Before(weekLookBackTime) {
 				break
+			}
+		}
+
+		// Get user's organization events
+		orgs, orgsErr := GetGitHubOrgs(token)
+		if orgsErr == nil {
+			for _, org := range orgs {
+				if org.Login != nil {
+					orgPage := 1
+					for {
+						orgEvents, orgEventsErr := GetGitHubOrgEvents(token, *org.Login, user, orgPage)
+						if orgEventsErr != nil {
+							break
+						}
+						if len(orgEvents) == 0 {
+							break
+						}
+						totalEvents = append(totalEvents, orgEvents...)
+						orgPage++
+						if len(orgEvents) > 0 && orgEvents[len(orgEvents)-1].CreatedAt != nil && orgEvents[len(orgEvents)-1].CreatedAt.Before(weekLookBackTime) {
+							break
+						}
+					}
+				}
 			}
 		}
 
