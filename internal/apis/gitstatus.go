@@ -26,6 +26,7 @@ package apis
 import (
 	"context"
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/DMcP89/tinycare-tui/internal/utils"
@@ -35,18 +36,44 @@ import (
 
 const missingTokenMessage = "GITHUB_TOKEN environment variable not set correctly"
 
-// newGitHubClient creates a new GitHub client with authentication
-func newGitHubClient(token string) *github.Client {
+var (
+	clientMutex  sync.RWMutex
+	cachedClient *github.Client
+	cachedToken  string
+)
+
+// getOrCreateClient returns a singleton GitHub client for the given token.
+// If the token changes, a new client is created.
+func getOrCreateClient(token string) *github.Client {
+	clientMutex.RLock()
+	if cachedClient != nil && cachedToken == token {
+		client := cachedClient
+		clientMutex.RUnlock()
+		return client
+	}
+	clientMutex.RUnlock()
+
+	clientMutex.Lock()
+	defer clientMutex.Unlock()
+
+	// Double-check after acquiring write lock
+	if cachedClient != nil && cachedToken == token {
+		return cachedClient
+	}
+
 	ctx := context.Background()
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: token},
 	)
 	tc := oauth2.NewClient(ctx, ts)
-	return github.NewClient(tc)
+	cachedClient = github.NewClient(tc)
+	cachedToken = token
+
+	return cachedClient
 }
 
 func GetGitHubUser(token string) (string, error) {
-	client := newGitHubClient(token)
+	client := getOrCreateClient(token)
 	ctx := context.Background()
 
 	user, _, err := client.Users.Get(ctx, "")
@@ -62,7 +89,7 @@ func GetGitHubUser(token string) (string, error) {
 }
 
 func GetGitHubEvents(token string, login string, page int) ([]*github.Event, error) {
-	client := newGitHubClient(token)
+	client := getOrCreateClient(token)
 	ctx := context.Background()
 
 	opts := &github.ListOptions{
@@ -79,7 +106,7 @@ func GetGitHubEvents(token string, login string, page int) ([]*github.Event, err
 }
 
 func GetGitHubOrgs(token string) ([]*github.Organization, error) {
-	client := newGitHubClient(token)
+	client := getOrCreateClient(token)
 	ctx := context.Background()
 
 	opts := &github.ListOptions{
@@ -95,7 +122,7 @@ func GetGitHubOrgs(token string) ([]*github.Organization, error) {
 }
 
 func GetGitHubOrgEvents(token string, org string, user string, page int) ([]*github.Event, error) {
-	client := newGitHubClient(token)
+	client := getOrCreateClient(token)
 	ctx := context.Background()
 
 	opts := &github.ListOptions{
