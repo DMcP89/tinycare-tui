@@ -128,17 +128,17 @@ func Test_GetGitHubCommits(t *testing.T) {
 
 func Test_GetGitHubCommits_EmptyToken(t *testing.T) {
 	day, week, err := GetGitHubCommits("")
-	
+
 	expectedMessage := "GITHUB_TOKEN environment variable not set correctly"
-	
+
 	if day != expectedMessage {
 		t.Errorf("Expected day output: %s, got: %s", expectedMessage, day)
 	}
-	
+
 	if week != expectedMessage {
 		t.Errorf("Expected week output: %s, got: %s", expectedMessage, week)
 	}
-	
+
 	if err != nil {
 		t.Errorf("Expected no error, got: %v", err)
 	}

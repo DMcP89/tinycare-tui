@@ -17,7 +17,7 @@ func TestGetTodaysTasks(t *testing.T) {
 		{
 			name: "Valid Today's Tasks",
 			mockReply: func() {
-				reqURL := "https://api.todoist.com/rest/v2/tasks?filter=today"
+				reqURL := "https://api.todoist.com/rest/v2/tasks?filter=today|overdue"
 				gock.New(reqURL).
 					Get("/").
 					Reply(200).

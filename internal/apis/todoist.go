@@ -13,7 +13,7 @@ import (
 // GetTodaysTasks will retrieve the tasks for today by querying the Todoist API.
 func GetTodaysTasks(token string) (string, error) {
 	// Make HTTP request
-	reqURL := "https://api.todoist.com/rest/v2/tasks?filter=today"
+	reqURL := "https://api.todoist.com/rest/v2/tasks?filter=today|overdue"
 	req, err := http.NewRequest("GET", reqURL, nil)
 	if err != nil {
 		return "", fmt.Errorf("unable to create request for Todoist: %w", err)
