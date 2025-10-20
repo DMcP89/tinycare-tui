@@ -37,8 +37,25 @@ func GetTodaysTasks(token string) (string, error) {
 
 	// Print the tasks
 	var output string
+	today := strings.Split(time.Now().Format(time.RFC3339), "T")[0]
 	for _, task := range tasks {
-		output += fmt.Sprintf("☐ %s\n", task["content"])
+		content := task["content"]
+		// Check if task is overdue
+		isOverdue := false
+		if due, ok := task["due"].(map[string]interface{}); ok {
+			if dueDate, ok := due["date"].(string); ok {
+				// Compare due date with today
+				if dueDate < today {
+					isOverdue = true
+				}
+			}
+		}
+
+		if isOverdue {
+			output += fmt.Sprintf("[red]☐ %s[white]\n", content)
+		} else {
+			output += fmt.Sprintf("☐ %s\n", content)
+		}
 	}
 	completed, err := GetCompletedTasks(token)
 	if err != nil {
