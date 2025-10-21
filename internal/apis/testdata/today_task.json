@@ -1,11 +1,26 @@
 [
-	{
-		"content": "Day care pick up"
-	},
-	{
-		"content": "Garbage"
-	},
-	{
-		"content": "Work on harambot"
-	}
+  {
+    "content": "Day care pick up",
+    "due": {
+      "date": "2025-10-20",
+      "string": "today",
+      "is_recurring": false
+    }
+  },
+  {
+    "content": "Garbage",
+    "due": {
+      "date": "2025-10-19",
+      "string": "yesterday",
+      "is_recurring": false
+    }
+  },
+  {
+    "content": "Work on harambot",
+    "due": {
+      "date": "2025-10-18",
+      "string": "2 days ago",
+      "is_recurring": false
+    }
+  }
 ]
