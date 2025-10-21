@@ -71,7 +71,7 @@ tinycare-tui
 - [x] Write configuration guide
 - [x] Fix time display on commits to adjust to timezone
 - [ ] Update github integration to include events from user's orgs
-- [ ] Update todoist integration to include overdue tasks
+- [x] Update todoist integration to include overdue tasks
 - [ ] Add functionality to mark tasks done
 - [x] Add joke API integration
 - [x] Fix silent failure when attempting to fetch commits from nonexistant directory
