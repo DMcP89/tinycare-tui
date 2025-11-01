@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/DMcP89/tinycare-tui/internal/apis"
@@ -21,6 +22,16 @@ func GetTextForView(f func(string) (string, error), envVar string, missingEnvErr
 	} else {
 		return missingEnvErrorMessage
 	}
+}
+
+func GetRefreshInterval() time.Duration {
+	const defaultInterval = 300 // 300 seconds = 5 minutes
+	if intervalStr, ok := os.LookupEnv("TINYCARE_REFRESH_INTERVAL"); ok {
+		if interval, err := strconv.Atoi(intervalStr); err == nil && interval > 0 {
+			return time.Duration(interval) * time.Second
+		}
+	}
+	return defaultInterval * time.Second
 }
 
 func main() {
@@ -124,10 +135,11 @@ func main() {
 		}()
 	}
 
+	refreshInterval := GetRefreshInterval()
 	go func() {
 		for {
 			refresh()
-			time.Sleep(300 * time.Second)
+			time.Sleep(refreshInterval)
 		}
 	}()
 

@@ -36,6 +36,7 @@ TODOIST_TOKEN=123456789abcdefg  # Set this variable to pull todos from Todoist
 TINYCARE_POSTAL_CODE=123456 # Set this to the postal code that you want to pull weather info for
 TINYCARE_WORKSPACE=/path/to/directory/with/git/repos,/another/path/to/repos # Set this to tell the app where to look for git repos to pull commits from
 TODO_FILE=/path/to/todolist/file # Set this to tell the app where your local task list is
+TINYCARE_REFRESH_INTERVAL=300 # Set this to control how often (in seconds) the views refresh. Default is 300 seconds (5 minutes)
 ```
 ## Run
 ```
