@@ -1,6 +1,7 @@
 package apis
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/h2non/gock"
@@ -17,11 +18,16 @@ func TestGetTodaysTasks(t *testing.T) {
 		{
 			name: "Valid Today's Tasks",
 			mockReply: func() {
-				reqURL := "https://api.todoist.com/rest/v2/tasks?filter=today|overdue"
-				gock.New(reqURL).
-					Get("/").
+				gock.New("https://api.todoist.com").
+					Get("/api/v1/tasks/filter").
+					MatchParam("query", "today|overdue").
 					Reply(200).
 					File("testdata/today_task.json")
+				
+				gock.New("https://api.todoist.com").
+					Get("/api/v1/tasks/completed/by_completion_date").
+					Reply(200).
+					File("testdata/complete_task.json")
 			},
 			expectError: false,
 		},
@@ -30,9 +36,20 @@ func TestGetTodaysTasks(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockReply()
-			_, err := GetTodaysTasks("test-token")
+			output, err := GetTodaysTasks("test-token")
 			if (err != nil) != tt.expectError {
 				t.Fatalf("expected error: %v, got: %v", tt.expectError, err)
+			}
+			if !tt.expectError {
+				if output == "" {
+					t.Fatalf("expected output, got empty string")
+				}
+				if !strings.Contains(output, "Day care pick up") {
+					t.Fatalf("output missing task: Day care pick up")
+				}
+				if !strings.Contains(output, "✅ Take out trash") {
+					t.Fatalf("output missing completed task: ✅ Take out trash")
+				}
 			}
 		})
 	}
@@ -49,9 +66,8 @@ func TestGetCompletedTasks(t *testing.T) {
 		{
 			name: "Valid Completed Tasks",
 			mockReply: func() {
-				reqURL := "https://api.todoist.com/sync/v9/completed/get_all"
-				gock.New(reqURL).
-					Get("/").
+				gock.New("https://api.todoist.com").
+					Get("/api/v1/tasks/completed/by_completion_date").
 					Reply(200).
 					File("testdata/complete_task.json")
 			},
@@ -62,9 +78,14 @@ func TestGetCompletedTasks(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockReply()
-			_, err := GetCompletedTasks("test-token")
+			output, err := GetCompletedTasks("test-token")
 			if (err != nil) != tt.expectError {
 				t.Fatalf("expected error: %v, got: %v", tt.expectError, err)
+			}
+			if !tt.expectError {
+				if !strings.Contains(output, "✅ Take out trash") {
+					t.Fatalf("output missing completed task: ✅ Take out trash")
+				}
 			}
 		})
 	}

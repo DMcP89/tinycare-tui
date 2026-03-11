@@ -13,7 +13,7 @@ import (
 // GetTodaysTasks will retrieve the tasks for today by querying the Todoist API.
 func GetTodaysTasks(token string) (string, error) {
 	// Make HTTP request
-	reqURL := "https://api.todoist.com/rest/v2/tasks?filter=today|overdue"
+	reqURL := "https://api.todoist.com/api/v1/tasks/filter?query=today|overdue"
 	req, err := http.NewRequest("GET", reqURL, nil)
 	if err != nil {
 		return "", fmt.Errorf("unable to create request for Todoist: %w", err)
@@ -29,16 +29,17 @@ func GetTodaysTasks(token string) (string, error) {
 	}
 
 	// Unmarshal the JSON data
-	var tasks []map[string]interface{}
-	err = json.Unmarshal(body, &tasks)
+	var results map[string]any
+	err = json.Unmarshal(body, &results)
 	if err != nil {
-		return "", fmt.Errorf("unable to unmarshal response data: %w", err)
+		return "", fmt.Errorf("unable to unmarshal response data: %w \n %s", err, string(body))
 	}
 
 	// Print the tasks
 	var output string
 	today := strings.Split(time.Now().Format(time.RFC3339), "T")[0]
-	for _, task := range tasks {
+	for _, task := range results["results"].([]interface{}) {
+		task := task.(map[string]interface{})
 		content := task["content"]
 		// Check if task is overdue
 		isOverdue := false
@@ -57,6 +58,7 @@ func GetTodaysTasks(token string) (string, error) {
 			output += fmt.Sprintf("☐ %s\n", content)
 		}
 	}
+
 	completed, err := GetCompletedTasks(token)
 	if err != nil {
 		output += "Could not fetch completed tasks \n"
@@ -69,8 +71,9 @@ func GetTodaysTasks(token string) (string, error) {
 }
 
 func GetCompletedTasks(token string) (string, error) {
-	reqURL := "https://api.todoist.com/sync/v9/completed/get_all"
+	reqURL := "https://api.todoist.com/api/v1/tasks/completed/by_completion_date"
 	today := strings.Split(time.Now().Format(time.RFC3339), "T")[0]
+	tomorrow := strings.Split(time.Now().Add(24*time.Hour).Format(time.RFC3339), "T")[0]
 
 	var output string
 	req, err := http.NewRequest("GET", reqURL, nil)
@@ -79,6 +82,7 @@ func GetCompletedTasks(token string) (string, error) {
 	}
 	q := req.URL.Query()
 	q.Add("since", today+"T00:00:00")
+	q.Add("until", tomorrow+"T00:00:00")
 	req.URL.RawQuery = q.Encode()
 
 	// Set the API token as a header
