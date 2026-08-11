@@ -1,0 +1,10 @@
+[
+{"description":"Pay bills","status":"pending","due":"20260115T120000Z"},
+{"description":"Water plants","status":"pending","due":"20260114T120000Z"},
+{"description":"Book flights","status":"pending","due":"20260116T120000Z"},
+{"description":"Clean keyboard","status":"pending"},
+{"description":"Take out trash","status":"completed","end":"20260115T120000Z"},
+{"description":"Mow the lawn","status":"completed","end":"20260114T120000Z"},
+{"description":"Reply to email","status":"waiting","due":"20260115T120000Z"},
+{"description":"Retired task","status":"deleted","end":"20260113T120000Z"}
+]
