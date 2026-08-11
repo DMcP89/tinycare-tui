@@ -59,6 +59,7 @@ func GetRepos(paths []string, c chan string, e chan error, q chan int) {
 				}
 				if info.IsDir() && info.Name() == ".git" {
 					c <- filepath.Dir(p)
+					return filepath.SkipDir
 				}
 				return nil
 			})
@@ -71,7 +72,19 @@ func GetRepos(paths []string, c chan string, e chan error, q chan int) {
 	close(q)
 }
 
+var (
+	repoCacheMu    sync.Mutex
+	repoCachePath  string
+	repoCacheRepos []string
+)
+
 func FindGitRepositories(path string) ([]string, error) {
+	repoCacheMu.Lock()
+	defer repoCacheMu.Unlock()
+	if path == repoCachePath && repoCacheRepos != nil {
+		return repoCacheRepos, nil
+	}
+
 	var repositories []string
 	//split the path into a slice of strings by comma
 	repo_channel := make(chan string)
@@ -88,6 +101,8 @@ func FindGitRepositories(path string) ([]string, error) {
 		case <-quit_channel:
 			close(repo_channel)
 			close(error_channel)
+			repoCachePath = path
+			repoCacheRepos = repositories
 			return repositories, nil
 		}
 	}
@@ -104,25 +119,27 @@ func GetCommitsFromTimeRange(repoPath string) (string, string, error) {
 		return "", "", err
 	}
 
+	dayLookBackTime := time.Now().AddDate(0, 0, -1)
+	weekLookBackTime := time.Now().AddDate(0, 0, -7)
+
 	commitIter, err := repo.Log(&git.LogOptions{
-		From: headRef.Hash(),
+		From:  headRef.Hash(),
+		Since: &weekLookBackTime,
 	})
 	if err != nil {
 		return "", "", err
 	}
-	dayLookBackTime := time.Now().AddDate(0, 0, -1)
-	weekLookBackTime := time.Now().AddDate(0, 0, -7)
 
 	dayCommitMessages := ""
 	weekCommitMessages := ""
 
 	err = commitIter.ForEach(func(commit *object.Commit) error {
-		if commit.Committer.When.After(dayLookBackTime) && commit.Committer.When.Before(time.Now()) {
+		if commit.Committer.When.After(dayLookBackTime) {
 			timeSinceCommit := time.Since(commit.Committer.When)
 			formattedTimeSinceCommit := utils.HumanizeDuration(timeSinceCommit)
 			dayCommitMessages += fmt.Sprintf("[yellow]%s[white] - %s (%s)\n", commit.Hash.String()[:7], strings.TrimSuffix(commit.Message, "\n"), formattedTimeSinceCommit)
 			weekCommitMessages += fmt.Sprintf("[yellow]%s[white] - %s (%s)\n", commit.Hash.String()[:7], strings.TrimSuffix(commit.Message, "\n"), formattedTimeSinceCommit)
-		} else if commit.Committer.When.After(weekLookBackTime) && commit.Committer.When.Before(time.Now()) {
+		} else {
 			timeSinceCommit := time.Since(commit.Committer.When)
 			formattedTimeSinceCommit := utils.HumanizeDuration(timeSinceCommit)
 			weekCommitMessages += fmt.Sprintf("[yellow]%s[white] - %s (%s)\n", commit.Hash.String()[:7], strings.TrimSuffix(commit.Message, "\n"), formattedTimeSinceCommit)

@@ -1,7 +1,11 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	"os"
+	"runtime"
+	"runtime/pprof"
 	"strconv"
 	"time"
 
@@ -34,7 +38,56 @@ func GetRefreshInterval() time.Duration {
 	return defaultInterval * time.Second
 }
 
+func runProfiledRefresh(runs int) {
+	if ws, ok := os.LookupEnv("TINYCARE_WORKSPACE"); ok {
+		for i := 0; i < runs; i++ {
+			_, _, err := local.GetCommits(ws)
+			if err != nil {
+				fmt.Println("GetCommits error:", err)
+			}
+		}
+	}
+	for i := 0; i < runs; i++ {
+		local.GetSelfCareAdvice()
+	}
+}
+
 func main() {
+	profileFile := flag.String("profile", "", "write CPU profile to file and exit")
+	memFile := flag.String("memprofile", "", "write heap profile to file and exit")
+	runs := flag.Int("profile-runs", 5, "number of data-fetch iterations while profiling")
+	flag.Parse()
+
+	if *profileFile != "" || *memFile != "" {
+		if *profileFile != "" {
+			f, err := os.Create(*profileFile)
+			if err != nil {
+				panic(err)
+			}
+			if err := pprof.StartCPUProfile(f); err != nil {
+				panic(err)
+			}
+			runProfiledRefresh(*runs)
+			pprof.StopCPUProfile()
+			f.Close()
+			fmt.Println("CPU profile written to", *profileFile)
+		}
+		if *memFile != "" {
+			f, err := os.Create(*memFile)
+			if err != nil {
+				panic(err)
+			}
+			runProfiledRefresh(*runs)
+			runtime.GC()
+			if err := pprof.WriteHeapProfile(f); err != nil {
+				panic(err)
+			}
+			f.Close()
+			fmt.Println("heap profile written to", *memFile)
+		}
+		return
+	}
+
 	app := tview.NewApplication()
 	changeFunc := func() { app.Draw() }
 	newTabTextView := func(text string, textAlignment int, next *ui.TabTextView) *ui.TabTextView {

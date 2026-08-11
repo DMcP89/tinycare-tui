@@ -218,3 +218,45 @@ func Test_GetCommitsFromTimeRange(t *testing.T) {
 		})
 	}
 }
+
+func Test_FindGitRepositories_Cached(t *testing.T) {
+	repoCacheMu.Lock()
+	repoCachePath = ""
+	repoCacheRepos = nil
+	repoCacheMu.Unlock()
+
+	tempDir := createTempDir(t)
+	defer removeTempDir(t, tempDir)
+
+	initGitRepo(t, filepath.Join(tempDir, "repo1"))
+
+	first, err := FindGitRepositories(tempDir)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(first) != 1 {
+		t.Fatalf("expected 1 repository, got %d", len(first))
+	}
+
+	initGitRepo(t, filepath.Join(tempDir, "repo2"))
+
+	second, err := FindGitRepositories(tempDir)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(second) != 1 {
+		t.Errorf("expected cached result of 1 repository, got %d", len(second))
+	}
+
+	otherDir := createTempDir(t)
+	defer removeTempDir(t, otherDir)
+	initGitRepo(t, filepath.Join(otherDir, "repo3"))
+
+	other, err := FindGitRepositories(otherDir)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(other) != 1 {
+		t.Errorf("expected 1 repository in new path, got %d", len(other))
+	}
+}
