@@ -97,11 +97,13 @@ func main() {
 
 		go func() {
 			text := GetTextForView(apis.GetTodaysTasks, "TODOIST_TOKEN", "")
-			if text != "" {
-				tasksView.SetText(text)
-			} else {
-				tasksView.SetText(GetTextForView(local.GetLocalTasks, "TODO_FILE", "Please set either the TODOIST_TOKEN or TODO_FILE environment variable"))
+			if text == "" {
+				text = GetTextForView(func(_ string) (string, error) { return local.GetTaskwarriorTasks() }, "TASKWARRIOR", "")
 			}
+			if text == "" {
+				text = GetTextForView(local.GetLocalTasks, "TODO_FILE", "Please set either the TODOIST_TOKEN, TASKWARRIOR, or TODO_FILE environment variable")
+			}
+			tasksView.SetText(text)
 		}()
 
 		go func() {

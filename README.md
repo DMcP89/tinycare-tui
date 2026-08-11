@@ -31,6 +31,7 @@ Set the following environment variables to configure Tinycare-tui
 GITHUB_TOKEN=123456789abcdefg # Set this variable to pull commits from Github instead of using local repositories
 OPEN_WEATHER_MAP_API_KEY=123456789abcdefg # Set this variable to get weather info from OpenWeatherMap.org
 TODOIST_TOKEN=123456789abcdefg  # Set this variable to pull todos from Todoist
+TASKWARRIOR=1  # Set this variable to pull todos from a local Taskwarrior install
 
 # Settings
 TINYCARE_POSTAL_CODE=123456 # Set this to the postal code that you want to pull weather info for
@@ -76,7 +77,7 @@ tinycare-tui
 - [ ] Add functionality to mark tasks done
 - [x] Add joke API integration
 - [x] Fix silent failure when attempting to fetch commits from nonexistant directory
-- [ ] Task Warrior integration
+- [x] Task Warrior integration
 - [x] Have project added to awesome-go
     - [x] reduce cyclomatic complexity of main function in main.go for Go Report Card
     - [x] setup code coverage Report
