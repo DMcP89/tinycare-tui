@@ -3,6 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log/slog"
+	"log/syslog"
 	"os"
 	"runtime"
 	"runtime/pprof"
@@ -16,6 +18,22 @@ import (
 	"github.com/rivo/tview"
 )
 
+var logFile, _ = os.Open(os.Getenv("TINYCARE_LOG_FILE"))
+
+func init() {
+	var handler slog.Handler
+	writer, err := syslog.New(syslog.LOG_INFO|syslog.LOG_USER, "tinycare-tui")
+	if err != nil {
+		handler = slog.NewTextHandler(os.Stderr, nil)
+	} else {
+		handler = slog.NewTextHandler(writer, nil)
+	}
+	slog.SetDefault(slog.New(handler))
+}
+
+var logger = slog.Default()
+
+
 func GetTextForView(f func(string) (string, error), envVar string, missingEnvErrorMessage string) string {
 	if token, ok := os.LookupEnv(envVar); ok {
 		result, err := f(token)
@@ -24,17 +42,21 @@ func GetTextForView(f func(string) (string, error), envVar string, missingEnvErr
 		}
 		return result
 	} else {
+		logger.Warn("missing environment variable", "variable", envVar)
 		return missingEnvErrorMessage
 	}
 }
 
 func GetRefreshInterval() time.Duration {
 	const defaultInterval = 300 // 300 seconds = 5 minutes
-	if intervalStr, ok := os.LookupEnv("TINYCARE_REFRESH_INTERVAL"); ok {
-		if interval, err := strconv.Atoi(intervalStr); err == nil && interval > 0 {
-			return time.Duration(interval) * time.Second
+		if intervalStr, ok := os.LookupEnv("TINYCARE_REFRESH_INTERVAL"); ok {
+			if interval, err := strconv.Atoi(intervalStr); err == nil && interval > 0 {
+				return time.Duration(interval) * time.Second
+			} else {
+				logger.Warn("invalid TINYCARE_REFRESH_INTERVAL provided", "value", intervalStr)
+			}
 		}
-	}
+
 	return defaultInterval * time.Second
 }
 
@@ -193,9 +215,11 @@ func main() {
 	refreshInterval := GetRefreshInterval()
 	go func() {
 		for {
+			logger.Info("starting periodic refresh cycle", "interval_seconds", int(refreshInterval.Seconds()))
 			refresh()
 			time.Sleep(refreshInterval)
 		}
+
 	}()
 
 	flex.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {

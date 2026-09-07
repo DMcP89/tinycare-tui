@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"log/slog"
 	"os"
 )
 
@@ -16,13 +17,22 @@ func GetWeather(postal_code string) (string, error) {
 	if api_key, ok := os.LookupEnv("OPEN_WEATHER_MAP_API_KEY"); ok {
 		weather := ""
 		//		weather_url := "https://api.openweathermap.org/data/2.5/weather?zip=" + postal_code + "&APPID=" + api_key + "&units=imperial"
+		// log start of request
+		slog.Info("fetching weather data", "postal_code", postal_code)
 		resp, err := http.Get(fmt.Sprintf(weather_url, postal_code, api_key))
 		if err != nil {
+			slog.Error("failed to fetch weather from server", "error", err)
 			return weather, fmt.Errorf("unable to retrieve weather data from openweathermap.org: %w", err)
 		}
 		defer resp.Body.Close()
 
+		slog.Info("received response from OpenWeather", "status_code", resp.StatusCode)
 		if resp.StatusCode != http.StatusOK {
+			if resp.StatusCode == 401 {
+				slog.Error("unauthorized access to OpenWeather")
+			} else if resp.StatusCode == 429 {
+				slog.Error("rate limited by OpenWeather")
+			}
 			return "", fmt.Errorf("unexpected response status code from OpenWeather API: %d", resp.StatusCode)
 		}
 

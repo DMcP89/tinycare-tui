@@ -3,6 +3,7 @@ package apis
 import (
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"strings"
 	"time"
@@ -16,6 +17,7 @@ func GetTodaysTasks(token string) (string, error) {
 	reqURL := "https://api.todoist.com/api/v1/tasks/filter?query=today|overdue"
 	req, err := http.NewRequest("GET", reqURL, nil)
 	if err != nil {
+		slog.Error("failed to create request for Todoist", "error", err)
 		return "", fmt.Errorf("unable to create request for Todoist: %w", err)
 	}
 
@@ -25,6 +27,7 @@ func GetTodaysTasks(token string) (string, error) {
 	// Read the response body
 	body, err := utils.SendRequest(req)
 	if err != nil {
+		slog.Error("failed to read response data from Todoist", "error", err)
 		return "", fmt.Errorf("unable to read response data: %w", err)
 	}
 
@@ -32,6 +35,7 @@ func GetTodaysTasks(token string) (string, error) {
 	var results map[string]any
 	err = json.Unmarshal(body, &results)
 	if err != nil {
+		slog.Error("failed to unmarshal Todoist response", "error", err)
 		return "", fmt.Errorf("unable to unmarshal response data: %w \n %s", err, string(body))
 	}
 

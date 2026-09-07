@@ -2,6 +2,7 @@ package apis
 
 import (
 	"net/http"
+	"log/slog"
 
 	"github.com/DMcP89/tinycare-tui/internal/utils"
 )
@@ -19,6 +20,7 @@ func GetJoke() (string, error) {
 
 	joke, err := utils.SendRequest(req)
 	if err != nil {
+		slog.Error("failed to fetch joke from server", "error", err)
 		return "", err
 	}
 

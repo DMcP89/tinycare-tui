@@ -6,7 +6,10 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
-	"time"
+	"log/slog"
+"time"
+
+
 
 	"github.com/DMcP89/tinycare-tui/internal/utils"
 	"github.com/go-git/go-git/v5"
@@ -78,7 +81,10 @@ var (
 	repoCacheRepos []string
 )
 
+var logger = slog.Default()
+
 func FindGitRepositories(path string) ([]string, error) {
+	logger.Info("scanned directory for git repositories", "path", path)
 	repoCacheMu.Lock()
 	defer repoCacheMu.Unlock()
 	if path == repoCachePath && repoCacheRepos != nil {
@@ -111,11 +117,13 @@ func FindGitRepositories(path string) ([]string, error) {
 func GetCommitsFromTimeRange(repoPath string) (string, string, error) {
 	repo, err := git.PlainOpen(repoPath)
 	if err != nil {
+		logger.Error("failed to open repository", "path", repoPath, "error", err)
 		return "", "", err
 	}
 
 	headRef, err := repo.Head()
 	if err != nil {
+		logger.Warn("failed to get head of repository", "path", repoPath, "error", err)
 		return "", "", err
 	}
 

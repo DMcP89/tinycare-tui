@@ -26,6 +26,7 @@ package apis
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/DMcP89/tinycare-tui/internal/utils"
@@ -51,6 +52,7 @@ func GetGitHubUser(token string) (string, error) {
 
 	user, _, err := client.Users.Get(ctx, "")
 	if err != nil {
+		slog.Error("failed to get github user", "error", err)
 		return "", err
 	}
 
@@ -83,6 +85,7 @@ func GetGitHubCommits(token string) (string, string, error) {
 	if token != "" {
 		user, userErr := GetGitHubUser(token)
 		if userErr != nil {
+			slog.Error("failed to get github user", "error", userErr)
 			return "", "", fmt.Errorf("unable to get Github User: %w", userErr)
 		}
 		var totalEvents []*github.Event
@@ -94,6 +97,7 @@ func GetGitHubCommits(token string) (string, string, error) {
 			events, eventsErr := GetGitHubEvents(token, user, page)
 
 			if eventsErr != nil {
+				slog.Error("failed to fetch events for user", "user", user, "error", eventsErr)
 				return "", "", fmt.Errorf("unable to get events for user %s: %w", user, eventsErr)
 			}
 			totalEvents = append(totalEvents, events...)
