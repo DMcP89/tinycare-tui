@@ -44,6 +44,15 @@ TINYCARE_REFRESH_INTERVAL=300 # Set this to control how often (in seconds) the v
 ```
 tinycare-tui
 ```
+
+## Performance Profiling
+You can generate CPU and heap profiles by passing the following flags to the application:
+
+- **CPU Profile**: `go run ./cmd/tinycare-tui --profile=cpu_profile.out`
+  This will capture execution metrics during several data fetching iterations (default is 5).
+- **Heap Memory Profiling**: `go run ./cmd/tinycare-tui --memprofile=mem_profile.out`
+
+Both flags require specifying a filename for the output profile.
 ## TO-DOs
 - [x] Allow for focusing on each box
 - [x] Expand on self care reminders
