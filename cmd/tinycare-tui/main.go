@@ -33,7 +33,6 @@ func init() {
 
 var logger = slog.Default()
 
-
 func GetTextForView(f func(string) (string, error), envVar string, missingEnvErrorMessage string) string {
 	if token, ok := os.LookupEnv(envVar); ok {
 		result, err := f(token)
@@ -49,13 +48,13 @@ func GetTextForView(f func(string) (string, error), envVar string, missingEnvErr
 
 func GetRefreshInterval() time.Duration {
 	const defaultInterval = 300 // 300 seconds = 5 minutes
-		if intervalStr, ok := os.LookupEnv("TINYCARE_REFRESH_INTERVAL"); ok {
-			if interval, err := strconv.Atoi(intervalStr); err == nil && interval > 0 {
-				return time.Duration(interval) * time.Second
-			} else {
-				logger.Warn("invalid TINYCARE_REFRESH_INTERVAL provided", "value", intervalStr)
-			}
+	if intervalStr, ok := os.LookupEnv("TINYCARE_REFRESH_INTERVAL"); ok {
+		if interval, err := strconv.Atoi(intervalStr); err == nil && interval > 0 {
+			return time.Duration(interval) * time.Second
+		} else {
+			logger.Warn("invalid TINYCARE_REFRESH_INTERVAL provided", "value", intervalStr)
 		}
+	}
 
 	return defaultInterval * time.Second
 }

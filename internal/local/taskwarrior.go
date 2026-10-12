@@ -25,6 +25,9 @@ func GetTaskwarriorTasks() (string, error) {
 	if err != nil {
 		return "", err
 	}
+	if tasks == nil || len(tasks) == 0 {
+		return "No tasks found", nil
+	}
 	return formatTaskwarriorTasks(tasks, time.Now()), nil
 }
 
